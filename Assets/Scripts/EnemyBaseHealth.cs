@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyBaseHealth : MonoBehaviour, IHealth
 {
-    private int health;
+    public int health;
     public int xp; 
     private XPManager xpManager; 
     public int maxHealth;

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5376933288744818004}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: spawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,13 +95,29 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -3828840773483527712, guid: b262fd85b05470d41ac705284469b953, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: -18553414668521130, guid: b262fd85b05470d41ac705284469b953, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b262fd85b05470d41ac705284469b953, type: 3}
       propertyPath: m_Name
       value: Level1NewEnemy
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b262fd85b05470d41ac705284469b953, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b262fd85b05470d41ac705284469b953, type: 3}
       propertyPath: m_TagString
       value: EnemyBase
+      objectReference: {fileID: 0}
+    - target: {fileID: 2405346895699444999, guid: b262fd85b05470d41ac705284469b953, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2987351857098631954, guid: b262fd85b05470d41ac705284469b953, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -123,7 +139,10 @@ PrefabInstance:
       addedObject: {fileID: 1282555394273986342}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b262fd85b05470d41ac705284469b953, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 6450077750059952788}
+      addedObject: {fileID: 608878050579430170}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b262fd85b05470d41ac705284469b953, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2870616142831513557}
   m_SourcePrefab: {fileID: 100100000, guid: b262fd85b05470d41ac705284469b953, type: 3}
 --- !u!1 &4811032118155068462 stripped
 GameObject:
@@ -144,10 +163,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 4012626508789636039, guid: d58bcd3209a7e9241b966130b3af9075, type: 3}
   spawnPoint: {fileID: 5376933288744818004}
-  spawnInterval: 5
+  spawnInterval: 2
   maxEnemies: 5
   currentEnemies: 0
---- !u!114 &6450077750059952788
+--- !u!65 &608878050579430170
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4811032118155068462}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.9784803, y: 1.2108974, z: 1.0889425}
+  m_Center: {x: -0.08290839, y: 0.62178326, z: -0.044471264}
+--- !u!114 &2870616142831513557
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -156,11 +196,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 4811032118155068462}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f365aa629c709e046a5133b4fd0d0c8e, type: 3}
+  m_Script: {fileID: 11500000, guid: fb1d2c8e3b8d3984b90dec84bbf72fc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 1000
-  xp: 0
+  health: 0
+  xp: 50
+  maxHealth: 500
 --- !u!4 &5300711009580785300 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b262fd85b05470d41ac705284469b953, type: 3}

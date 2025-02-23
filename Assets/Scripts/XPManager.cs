@@ -23,6 +23,7 @@ public class XPManager : MonoBehaviour
         {
             ShowNewCards(); // Call this method to display new cards
             currentXP = 0; // Reset XP
+            xpBar.value = currentXP;
         }
     }
 

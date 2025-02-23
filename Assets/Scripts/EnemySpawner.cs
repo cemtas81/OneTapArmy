@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -30,7 +31,39 @@ public class EnemySpawner : MonoBehaviour
             enemyPool.Release(enemy);
         }
     }
+    private void Start()
+    {
+        StartCoroutine(CheckEnemiesRoutine());
+    }
 
+    IEnumerator CheckEnemiesRoutine()
+    {
+        while (true) // Infinite loop
+        {
+            yield return new WaitForSeconds(5f); // Wait for 5 seconds before checking again
+
+            // Iterate through all current enemies
+            for (int i = 0; i < currentEnemies; i++)
+            {
+                Transform enemyTransform = transform.GetChild(i); // Get the child transform
+                if (enemyTransform.TryGetComponent<EnemyAI>(out EnemyAI enemy))
+                {
+                    if (enemy.target == null) // If the enemy has no target
+                    {
+                        // Pause the enemy's movement and attacking
+                        enemy.isAttacking = false;
+                        enemy.StopAttacking(); // Ensure the enemy stops attacking
+
+                        yield return new WaitForSeconds(2f); // Wait for 2 seconds
+
+                        // Resume the enemy's movement and attacking
+                        enemy.isAttacking = true;
+                        enemy.FindTarget(); // Start finding a target again
+                    }
+                }
+            }
+        }
+    }
     void Update()
     {
         timer += Time.deltaTime;
@@ -39,14 +72,14 @@ public class EnemySpawner : MonoBehaviour
             SpawnEnemy();
             timer = 0f;
         }
+      
     }
 
     void SpawnEnemy()
     {
         // Get an enemy from the pool
         EnemyAI enemy = enemyPool.Get();
-        enemy.transform.position = spawnPoint.position; // Set spawn position
-        enemy.transform.rotation = spawnPoint.rotation; // Set spawn rotation
+        enemy.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
         currentEnemies++;
     }
 

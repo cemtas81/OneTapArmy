@@ -120,10 +120,16 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b262fd85b05470d41ac705284469b953, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7919858612157143555}
+      addedObject: {fileID: 7275421996277009893}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b262fd85b05470d41ac705284469b953, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3028232296049487807}
+      addedObject: {fileID: 2724404137039762036}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b262fd85b05470d41ac705284469b953, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3944151760153048874}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b262fd85b05470d41ac705284469b953, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2381447116887122030}
   m_SourcePrefab: {fileID: 100100000, guid: b262fd85b05470d41ac705284469b953, type: 3}
 --- !u!4 &7109358546402697714 stripped
 Transform:
@@ -135,7 +141,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: b262fd85b05470d41ac705284469b953, type: 3}
   m_PrefabInstance: {fileID: 7287733025813890585}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7919858612157143555
+--- !u!114 &7275421996277009893
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -144,24 +150,63 @@ MonoBehaviour:
   m_GameObject: {fileID: 7629752265033136968}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e5fceb1d835b7f4c88ad41befdd61c8, type: 3}
+  m_Script: {fileID: 11500000, guid: ba8355d536d7ee8409360e3f2a26355e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 1000
---- !u!114 &3028232296049487807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7629752265033136968}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de17d1315260c994d9783c14420ff9f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 6368280036003151826, guid: b801a1098dbb30846a80eae1c3861cbe, type: 3}
+  unitPrefab: {fileID: 5149061207186751953, guid: b801a1098dbb30846a80eae1c3861cbe, type: 3}
   spawnPoint: {fileID: 8261155091445929461}
   spawnInterval: 2
-  maxEnemies: 10
-  currentEnemies: 0
+  maxUnits: 10
+  currentUnits: 0
+--- !u!114 &2724404137039762036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7629752265033136968}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36314bc7fba83344fb766268099be80c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxUnits: 20
+  unitPrefab: {fileID: 6033144241562262920, guid: 4991c27ba3a357142a5818b1b79c3751, type: 3}
+  spawnPoint: {fileID: 8261155091445929461}
+  spawnInterval: 5
+  attackRange: 50
+--- !u!65 &3944151760153048874
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7629752265033136968}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.9784803, y: 1.2108974, z: 1.19279}
+  m_Center: {x: -0.08290839, y: 0.62178326, z: 0.007452488}
+--- !u!114 &2381447116887122030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7629752265033136968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05c47215e5346ea449fcee6cc1196e9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 0
+  maxHealth: 500
