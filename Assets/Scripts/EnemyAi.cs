@@ -7,11 +7,17 @@ public class EnemyAI : MonoBehaviour
     public int damage;
     public float attackInterval = 1f; // Interval between attacks
     public Transform target;
-    public bool isAttacking = false;
+    public bool isArcher;
     private NavMeshAgent agent;
     private Animator anim;
     private readonly int _attack = Animator.StringToHash("Attack");
     private readonly int _velocity = Animator.StringToHash("Velocity");
+    private readonly int _death = Animator.StringToHash("Death");
+    [SerializeField] private Canvas canvas;
+    private Camera mainCamera;
+    private EnemySpawner spawner;
+    public float distanceMultiplier;
+    private bool isAttacking = false;
 
     public void Initialize()
     {
@@ -23,12 +29,26 @@ public class EnemyAI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    void Start()
+    private void OnEnable()
     {
+        isAttacking = false;
+       
         // Wait for a few seconds before attacking
-        Invoke(nameof(StartAttacking), waitTime);
+        //Invoke(nameof(StartAttacking), waitTime);
+        spawner.charge.AddListener(StartAttacking);
+    }
+    private void OnDisable()
+    {
+        spawner.charge.RemoveListener(StartAttacking);
+        agent.enabled = true;
+    }
+    void Awake()
+    {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
+        mainCamera = Camera.main;
+        spawner = FindFirstObjectByType<EnemySpawner>();
+        
     }
 
     void StartAttacking()
@@ -41,31 +61,52 @@ public class EnemyAI : MonoBehaviour
     {
         if (isAttacking)
         {
-            if (target == null || !target.gameObject.activeInHierarchy)
-            {
-                FindTarget(); // Find a new target if the current one is destroyed or inactive
-            }
+            Movement();
+        }
+        canvas.transform.LookAt(mainCamera.transform);
+        Animating(agent.velocity.magnitude);
+    }
 
-            if (target != null && target.gameObject.activeInHierarchy)
-            {
-                float distanceToTarget = Vector3.Distance(transform.position, target.position);
-                if (distanceToTarget <= attackRange)
-                {
-                    AttackTarget();
-                }
-                else
-                {
-                    StopAttacking(); // Stop attacking if out of range
-
-                }
-            }
-            else
-            {
-                StopAttacking(); // Stop attacking if no valid target is found
-            }
+    void Movement()
+    {
+        if (target == null || !target.gameObject.activeInHierarchy)
+        {
+            FindTarget(); // Find a new target if the current one is destroyed or inactive
         }
 
-        Animating(agent.velocity.magnitude);
+        if (target != null && target.gameObject.activeInHierarchy)
+        {
+            HandleAttackTarget();
+        }
+        else
+        {
+            StopAttacking(); // Stop attacking if no valid target is found
+        }
+    }
+
+    void HandleAttackTarget()
+    {
+        float distanceToTarget = Vector3.Distance(transform.position, target.position);
+        if (distanceToTarget <= attackRange * distanceMultiplier)
+        {
+            AttackTarget();
+        }
+        else
+        {
+            ChaseTarget();
+        }
+    }
+
+    void ChaseTarget()
+    {
+        anim.SetBool(_attack, false);
+        if (agent.enabled)
+        {
+            agent.isStopped = false;
+            agent.updateRotation = true;
+            agent.SetDestination(target.position);
+        }
+     
     }
 
     void Animating(float velocity)
@@ -75,72 +116,96 @@ public class EnemyAI : MonoBehaviour
 
     private void AttackTarget()
     {
-        if (target == null || !target.gameObject.activeInHierarchy) return; // Exit if no target
-
-        // Stop moving and start attacking
-        agent.isStopped = true;
-        agent.updateRotation = false;
-
-        // Look at the target
-        transform.LookAt(target);
-
-        anim.SetBool(_attack, true);
+        if (target == null || !target.gameObject.activeInHierarchy)
+        {
+            StopAttacking(); // Exit if no target
+            return;
+        }
+        else 
+        {
+            transform.LookAt(target);
+            anim.SetBool(_attack, true);
+        }
+        if (isArcher)
+        {
+            anim.SetFloat("Speed", .6f);
+        }
+        if (agent.enabled)
+        {
+            agent.isStopped = true;
+            agent.updateRotation = false;
+        }
+               
     }
 
     public void StopAttacking()
     {
         anim.SetBool(_attack, false);
-
-        // Resume movement
-        agent.isStopped = false;
-        agent.updateRotation = true;
-
-        if (target != null && target.gameObject.activeInHierarchy)
+        if (agent.enabled)
         {
-            agent.SetDestination(target.position); // Move towards the target
+            agent.isStopped = false;
+            agent.updateRotation = true;
         }
+          
+        target = null; // Clear the target
     }
 
+    public void Death()
+    {
+        isAttacking = false;
+        anim.SetBool(_attack, false);
+        agent.enabled = false;
+        anim.SetBool(_death, true);
+    }
+
+    public void OnDeathAnimationEnd()
+    {
+        spawner.EnemyDefeated(this);
+        ResetEnemy();
+    }
 
     public void Damaging()
     {
         if (target != null && target.gameObject.activeInHierarchy && target.TryGetComponent<UnitHealth>(out UnitHealth unitHealth))
         {
             unitHealth.TakeDamage(damage);
-            Debug.Log($"Dealing {damage} damage to {target.name}");
         }
         else if (target != null && target.gameObject.activeInHierarchy && target.TryGetComponent<BaseHealth>(out BaseHealth baseHealth))
         {
             baseHealth.TakeDamage(damage);
-            Debug.Log($"Dealing {damage} damage to {target.name}");
         }
     }
 
     public void FindTarget()
     {
-        // Find the nearest player unit or base
+        // Find all active player units and the player base
         GameObject[] playerUnits = GameObject.FindGameObjectsWithTag("PlayerUnit");
         GameObject playerBase = GameObject.FindGameObjectWithTag("PlayerBase");
 
-        float shortestDistance = Mathf.Infinity;
+        // Find the nearest target among player units and the player base
+        Transform nearestTarget = FindNearestTarget(playerUnits, playerBase);
+
+        // Set the nearest target or clear it if no target is found
+        if (nearestTarget != null)
+        {
+            target = nearestTarget;
+        }
+        else
+        {
+            StopAttacking(); // Stop attacking if no target is found
+        }
+    }
+
+    private Transform FindNearestTarget(GameObject[] playerUnits, GameObject playerBase)
+    {
         Transform nearestTarget = null;
+        float shortestDistance = Mathf.Infinity;
 
         // Check player units
-        foreach (GameObject unit in playerUnits)
-        {
-            if (unit != null && unit.activeInHierarchy) // Only consider active units
-            {
-                float distance = Vector3.Distance(transform.position, unit.transform.position);
-                if (distance < shortestDistance)
-                {
-                    shortestDistance = distance;
-                    nearestTarget = unit.transform;
-                }
-            }
-        }
+        nearestTarget = FindNearestInArray(playerUnits, ref shortestDistance);
 
         // Check player base
-        if (playerBase != null && playerBase.activeInHierarchy) // Null check for player base
+        if (playerBase != null && playerBase.activeInHierarchy)
         {
             float baseDistance = Vector3.Distance(transform.position, playerBase.transform.position);
             if (baseDistance < shortestDistance)
@@ -149,15 +214,32 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        // Set the nearest target as the attack target
-        if (nearestTarget != null)
+        return nearestTarget;
+    }
+
+    private Transform FindNearestInArray(GameObject[] targets, ref float shortestDistance)
+    {
+        Transform nearestTarget = null;
+
+        foreach (GameObject target in targets)
         {
-            target = nearestTarget;
+            // Skip null or inactive targets
+            if (target == null || !target.activeInHierarchy)
+            {
+                continue;
+            }
+
+            // Calculate distance to the target
+            float distance = Vector3.Distance(transform.position, target.transform.position);
+
+            // Update nearest target if this target is closer
+            if (distance < shortestDistance)
+            {
+                shortestDistance = distance;
+                nearestTarget = target.transform;
+            }
         }
-        else
-        {
-            target = null; // Clear attack target if no target is found
-            StopAttacking(); // Stop attacking if no target is found
-        }
+
+        return nearestTarget;
     }
 }

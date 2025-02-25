@@ -1,4 +1,4 @@
-using System.Linq;
+
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
@@ -15,18 +15,30 @@ public class UnitMovement : MonoBehaviour
     private Animator anim;
     private readonly int _attack = Animator.StringToHash("Attack");
     private readonly int _velocity = Animator.StringToHash("Velocity");
-    private bool isAttacking = false;
+    private readonly int _death = Animator.StringToHash("Death");
     public LayerMask layerMask;
+    [SerializeField] private Canvas canvas;
+    [SerializeField] private float distanceMultiplier;
+    private Camera mainCamera;
+    private UnitSpawner spawner;
+    private bool isDead;
+    private float distanceToTarget;
 
     private void Start()
     {
         targetPosition = transform.position;
-        tapController = FindFirstObjectByType<TapController>();
-        tapController.units = tapController.units.Append(this).ToArray(); // Add this unit to the TapController's list
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
+        mainCamera = Camera.main;
+        spawner = FindFirstObjectByType<UnitSpawner>();
     }
+    private void OnEnable()
+    {
+        tapController = FindFirstObjectByType<TapController>();
+        tapController?.move.AddListener(SetTarget);
 
+    }
+    
     public void Initialize()
     {
         gameObject.SetActive(true);
@@ -47,8 +59,37 @@ public class UnitMovement : MonoBehaviour
             StopAttacking(); // Stop attacking when relocating
         }
     }
+    public void Death()
+    {
+        tapController?.move.RemoveListener(SetTarget);
+        isDead =true;
+        anim.SetBool(_attack, false);
+        agent.isStopped = true;
+        agent.updateRotation = false;
+        anim.SetBool(_death, true);
+    }
+    public void OnDeathEnd()
+    {
 
+        spawner.UnitDefeated(this);
+        ResetUnit();
+    }
     void Update()
+    {
+        if (!isDead)
+        {
+            Movement();
+        }
+       
+        canvas.transform.LookAt(mainCamera.transform);
+        Animating(agent.velocity.magnitude);
+    }
+
+    void Animating(float velocity)
+    {
+        anim.SetFloat(_velocity, velocity);
+    }
+    void Movement()
     {
         if (attackTarget == null || !attackTarget.gameObject.activeInHierarchy)
         {
@@ -57,56 +98,44 @@ public class UnitMovement : MonoBehaviour
 
         if (attackTarget != null && attackTarget.gameObject.activeInHierarchy)
         {
-            float distanceToTarget = Vector3.Distance(transform.position, attackTarget.position);
-            if (distanceToTarget <= attackRange)
-            {
-                AttackTarget();
-            }
-            else
-            {
-                StopAttacking(); // Stop attacking if out of range
-                //MoveToTarget(); // Move towards the target if out of range
-            }
+            HandleAttackTarget();
         }
         else
         {
             StopAttacking(); // Stop attacking if no target is found
-            //MoveToTarget(); // Move towards the target position
         }
-
-        Animating(agent.velocity.magnitude);
     }
 
-    void Animating(float velocity)
+    private void HandleAttackTarget()
     {
-        anim.SetFloat(_velocity, velocity);
+        distanceToTarget = Vector3.Distance(transform.position, attackTarget.position);
+        if (distanceToTarget <= attackRange*distanceMultiplier)
+        {
+            AttackTarget();
+        }
+        else
+        {
+            ChaseTarget();
+        }
     }
-
+    private void ChaseTarget()
+    {
+        agent.SetDestination(attackTarget.position);
+    }
     private void AttackTarget()
     {
         if (attackTarget == null || !attackTarget.gameObject.activeInHierarchy) return; // Exit if no target
         agent.updateRotation = false;
         agent.isStopped = true;
-        transform.LookAt(attackTarget);
-
-        if (!isAttacking)
-        {
-            isAttacking = true;
-            anim.SetBool(_attack, true);
-        }
+        transform.LookAt(attackTarget);      
+        anim.SetBool(_attack, true);    
     }
 
     private void StopAttacking()
-    {
-        isAttacking = false;
+    {    
         anim.SetBool(_attack, false);
         agent.isStopped = false;
         agent.updateRotation = true;
-        agent.SetDestination(targetPosition);
-    }
-
-    private void MoveToTarget()
-    {
         agent.SetDestination(targetPosition);
     }
 
@@ -114,8 +143,7 @@ public class UnitMovement : MonoBehaviour
     {
         if (attackTarget != null && attackTarget.gameObject.activeInHierarchy && attackTarget.TryGetComponent<IHealth>(out IHealth healthComponent))
         {
-            healthComponent.TakeDamage(attackDamage);
-            Debug.Log($"Dealing {attackDamage} damage to {attackTarget.name}");
+            healthComponent.TakeDamage(attackDamage);      
         }
     }
 
@@ -133,22 +161,24 @@ public class UnitMovement : MonoBehaviour
             if (hitColliders[i].gameObject.activeSelf) // Only consider active enemies
             {
                 float distance = Vector3.Distance(transform.position, hitColliders[i].transform.position);
-                if (distance < shortestDistance)
-                {
-                    shortestDistance = distance;
-                    nearestTarget = hitColliders[i].transform;
-                }
+                UpdateNearestTarget(ref nearestTarget, ref shortestDistance, hitColliders[i].transform, distance);
             }
         }
 
-        // Set the nearest target as the attack target
-        if (nearestTarget != null)
+        SetAttackTarget(nearestTarget);
+    }
+
+    private void UpdateNearestTarget(ref Transform nearestTarget, ref float shortestDistance, Transform currentTarget, float distance)
+    {
+        if (distance < shortestDistance)
         {
-            attackTarget = nearestTarget;
+            shortestDistance = distance;
+            nearestTarget = currentTarget;
         }
-        else
-        {
-            attackTarget = null; // Clear attack target if no enemy is found
-        }
+    }
+
+    private void SetAttackTarget(Transform target)
+    {
+        attackTarget = target != null ? target : null; // Clear attack target if no enemy is found
     }
 }

@@ -1,11 +1,11 @@
-using System.Linq;
+
 using UnityEngine;
+using UnityEngine.Events;
 
 public class TapController : MonoBehaviour
 {
     public LayerMask groundLayer;
-    public UnitMovement[] units; // Array of all units
-
+    public UnityEvent<Vector3> move;
     void Update()
     {
         if (Input.GetMouseButtonDown(0)) 
@@ -14,21 +14,9 @@ public class TapController : MonoBehaviour
             if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, groundLayer))
             {
                 Vector3 targetPosition = hit.point;
-
-                DirectUnits(targetPosition);
+                move?.Invoke(targetPosition);
             }
         }
     }
 
-    void DirectUnits(Vector3 targetPosition)
-    {
-        foreach (UnitMovement unit in units)
-        {
-            unit?.SetTarget(targetPosition);
-        }
-    }
-    public void RemoveUnit(UnitMovement unitToRemove)
-    {
-        units = units.Where(unit => unit != unitToRemove).ToArray();
-    }
 }

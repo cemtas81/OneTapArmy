@@ -7,10 +7,14 @@ public class ArrowShoot : MonoBehaviour
     public Transform endPoint;   // Point B
     public float height = 5f;   // Height of the arc
     public float duration = 2f; // Duration of the tween
-    private ArrowSpawner arrowSpawner;
+    //private ArrowSpawner arrowSpawner;
+    private ArrowPoolManager arrowSpawner;
+    public int damage;
+    public bool isEnemyArrow;
+
     private void Start()
     {
-        arrowSpawner = FindFirstObjectByType<ArrowSpawner>();
+        arrowSpawner = ArrowPoolManager.Instance;
     }
     public void Initialize()
     {
@@ -21,13 +25,14 @@ public class ArrowShoot : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
-    //private void OnEnable()
-    //{
-    //    ShootArrow();
-    //}
+
+    private Vector3 previousPosition; // Track the arrow's position in the previous frame
 
     public void ShootArrow()
     {
+        // Store the initial position
+        previousPosition = startPoint.position;
+
         // Calculate the midpoint for the arc
         Vector3 midPoint = Vector3.Lerp(startPoint.position, endPoint.position, 0.5f);
         midPoint.y += height;
@@ -38,21 +43,67 @@ public class ArrowShoot : MonoBehaviour
         // Use DOTween to animate the arrow along the path
         transform.DOPath(path, duration, PathType.CatmullRom)
             .SetEase(Ease.OutQuad)
+            .OnUpdate(() => UpdateArrowRotation()) // Update rotation during the tween
             .OnComplete(() => OnArrowLanded());
     }
 
+    private void UpdateArrowRotation()
+    {
+        // Calculate the direction the arrow is moving
+        Vector3 direction = transform.position - previousPosition;
+
+        // Only update rotation if the direction is not zero
+        if (direction != Vector3.zero)
+        {
+            // Calculate the rotation to look in the direction of movement
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+            // Apply the rotation to the arrow
+            transform.rotation = targetRotation;
+        }
+
+        // Update the previous position for the next frame
+        previousPosition = transform.position;
+    }
     void OnArrowLanded()
     {
-        arrowSpawner.UnitDefeated(this);
+
+        arrowSpawner.Release(this);
+
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("EnemyUnit"))
+        if (!isEnemyArrow)
         {
-            if (collision.gameObject.TryGetComponent<EnemyHealth>(out var enemyHealth))
+
+            DamageEnemy(collision.collider);
+        }
+        else
+        {
+
+            DamagePlayer(collision.collider);
+        }
+
+    }
+    void DamageEnemy(Collider coll)
+    {
+        if (coll.gameObject.CompareTag("EnemyUnit"))
+        {
+            if (coll.gameObject.TryGetComponent<EnemyHealth>(out var enemyHealth))
             {
-                enemyHealth.TakeDamage(100);
-                arrowSpawner.UnitDefeated(this);
+                enemyHealth.TakeDamage(damage);
+                ResetUnit();
+            }
+        }
+    }
+    void DamagePlayer(Collider coll)
+    {
+        if (coll.gameObject.CompareTag("PlayerUnit"))
+        {
+            if (coll.gameObject.TryGetComponent<UnitHealth>(out var playerHealth))
+            {
+                playerHealth.TakeDamage(damage);
+                ResetUnit();
             }
         }
     }

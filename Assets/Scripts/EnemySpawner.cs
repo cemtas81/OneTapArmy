@@ -1,5 +1,6 @@
-using System.Collections;
+
 using UnityEngine;
+using UnityEngine.Events;
 
 public class EnemySpawner : MonoBehaviour
 {
@@ -7,11 +8,14 @@ public class EnemySpawner : MonoBehaviour
     public Transform spawnPoint; // Where enemies will spawn
     public float spawnInterval = 5f; // Time between spawns
     public int maxEnemies = 10; // Maximum number of enemies allowed
-
+    public UnityEvent charge;
     private float timer;
     public int currentEnemies = 0;
-
+    [Range(3f, 10f)]
+    public float attackTime;
     private ObjectPool<EnemyAI> enemyPool; // Object pool for enemies
+    
+    private float attacktimer;
 
     private void Awake()
     {
@@ -31,50 +35,23 @@ public class EnemySpawner : MonoBehaviour
             enemyPool.Release(enemy);
         }
     }
-    private void Start()
-    {
-        StartCoroutine(CheckEnemiesRoutine());
-    }
 
-    IEnumerator CheckEnemiesRoutine()
-    {
-        while (true) // Infinite loop
-        {
-            yield return new WaitForSeconds(5f); // Wait for 5 seconds before checking again
-
-            // Iterate through all current enemies
-            for (int i = 0; i < currentEnemies; i++)
-            {
-                Transform enemyTransform = transform.GetChild(i); // Get the child transform
-                if (enemyTransform.TryGetComponent<EnemyAI>(out EnemyAI enemy))
-                {
-                    if (enemy.target == null) // If the enemy has no target
-                    {
-                        // Pause the enemy's movement and attacking
-                        enemy.isAttacking = false;
-                        enemy.StopAttacking(); // Ensure the enemy stops attacking
-
-                        yield return new WaitForSeconds(2f); // Wait for 2 seconds
-
-                        // Resume the enemy's movement and attacking
-                        enemy.isAttacking = true;
-                        enemy.FindTarget(); // Start finding a target again
-                    }
-                }
-            }
-        }
-    }
     void Update()
     {
         timer += Time.deltaTime;
+        attacktimer+= Time.deltaTime;
         if (timer >= spawnInterval && currentEnemies < maxEnemies)
         {
             SpawnEnemy();
             timer = 0f;
         }
-      
+        else if (attacktimer >= attackTime)
+        {           
+            //attackTime = Random.Range(5, 10);
+            charge.Invoke();
+            attacktimer = 0f;
+        }
     }
-
     void SpawnEnemy()
     {
         // Get an enemy from the pool
