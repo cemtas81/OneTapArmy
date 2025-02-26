@@ -9,11 +9,22 @@ public class Archer : MonoBehaviour
     public Transform spawnPoint;
     private ArrowPoolManager arrowPool;
     public bool isEnemyArrow;
-
+    private UnitMovement unitMovement;
+    public int dam =10;
     private void Start()
     {
         arrow = ArrowPoolManager.Instance.unitPrefab;
-        enemyAI = GetComponent<EnemyAI>();
+        if (isEnemyArrow)
+        {
+            enemyAI = GetComponent<EnemyAI>();
+            dam = enemyAI.damage;
+        }
+        else
+        {
+            unitMovement = GetComponent<UnitMovement>();
+            dam = unitMovement.attackDamage;
+        }
+
         arrowPool = ArrowPoolManager.Instance;
     }
 
@@ -24,9 +35,16 @@ public class Archer : MonoBehaviour
         arrow.isEnemyArrow = isEnemyArrow;
         arrow.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
         arrow.startPoint = spawnPoint;
-        arrow.endPoint = enemyAI.target;
+        if (isEnemyArrow)
+        {
+            arrow.endPoint = enemyAI.target;
+        }
+        else
+        {
+            arrow.endPoint = unitMovement.attackTarget;
+        }
         arrow.height=1;
-        arrow.damage = 10;
+        arrow.damage = dam;
         arrow.ShootArrow();
  
     }

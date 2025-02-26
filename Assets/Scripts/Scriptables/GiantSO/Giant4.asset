@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 362d761e29506a34bb0c7e33bdc8c72f, type: 3}
+  m_Name: Giant4
+  m_EditorClassIdentifier: 
+  cardName: Giant
+  cardImage: {fileID: 21300000, guid: 14a74bbd627c71a4da59303abc542a33, type: 3}
+  background: {fileID: 21300000, guid: 7888bdb0c9af4ab4097d3514e13d3896, type: 3}
+  level: 4
+  multiplier: 30
+  multiplier2: 30
+  multiplierType: Health
+  multiplierType2: Attack
+  unitPrefab: {fileID: 0}

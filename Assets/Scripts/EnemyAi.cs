@@ -18,6 +18,7 @@ public class EnemyAI : MonoBehaviour
     private EnemySpawner spawner;
     public float distanceMultiplier;
     private bool isAttacking = false;
+    public int maxUnits;
 
     public void Initialize()
     {
@@ -32,9 +33,7 @@ public class EnemyAI : MonoBehaviour
     private void OnEnable()
     {
         isAttacking = false;
-       
-        // Wait for a few seconds before attacking
-        //Invoke(nameof(StartAttacking), waitTime);
+        target = null;
         spawner.charge.AddListener(StartAttacking);
     }
     private void OnDisable()
@@ -121,21 +120,20 @@ public class EnemyAI : MonoBehaviour
             StopAttacking(); // Exit if no target
             return;
         }
-        else 
-        {
-            transform.LookAt(target);
-            anim.SetBool(_attack, true);
-        }
+
+        transform.LookAt(target);
+        anim.SetBool(_attack, true);
+
         if (isArcher)
         {
             anim.SetFloat("Speed", .6f);
         }
+
         if (agent.enabled)
         {
             agent.isStopped = true;
             agent.updateRotation = false;
         }
-               
     }
 
     public void StopAttacking()
@@ -178,12 +176,31 @@ public class EnemyAI : MonoBehaviour
 
     public void FindTarget()
     {
-        // Find all active player units and the player base
-        GameObject[] playerUnits = GameObject.FindGameObjectsWithTag("PlayerUnit");
-        GameObject playerBase = GameObject.FindGameObjectWithTag("PlayerBase");
+        // Define a sphere to check for targets within attack range
+        Collider[] hitColliders = new Collider[maxUnits]; // Use a reasonable size for the array
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, attackRange, hitColliders, LayerMask.GetMask("PlayerUnit", "PlayerBase"));
 
-        // Find the nearest target among player units and the player base
-        Transform nearestTarget = FindNearestTarget(playerUnits, playerBase);
+        Transform nearestTarget = null;
+        float shortestDistance = Mathf.Infinity;
+
+        // Iterate through all the colliders found
+        for (int i = 0; i < hitCount; i++)
+        {
+            // Skip null or inactive colliders
+            if (hitColliders[i] == null || !hitColliders[i].gameObject.activeInHierarchy)
+                continue;
+
+            // Calculate the distance to the current collider
+            float distance = Vector3.Distance(transform.position, hitColliders[i].transform.position);
+
+            // Skip if the current collider is not closer than the previous nearest target
+            if (distance >= shortestDistance)
+                continue;
+
+            // Update the nearest target and shortest distance
+            shortestDistance = distance;
+            nearestTarget = hitColliders[i].transform;
+        }
 
         // Set the nearest target or clear it if no target is found
         if (nearestTarget != null)
@@ -194,52 +211,5 @@ public class EnemyAI : MonoBehaviour
         {
             StopAttacking(); // Stop attacking if no target is found
         }
-    }
-
-    private Transform FindNearestTarget(GameObject[] playerUnits, GameObject playerBase)
-    {
-        Transform nearestTarget = null;
-        float shortestDistance = Mathf.Infinity;
-
-        // Check player units
-        nearestTarget = FindNearestInArray(playerUnits, ref shortestDistance);
-
-        // Check player base
-        if (playerBase != null && playerBase.activeInHierarchy)
-        {
-            float baseDistance = Vector3.Distance(transform.position, playerBase.transform.position);
-            if (baseDistance < shortestDistance)
-            {
-                nearestTarget = playerBase.transform;
-            }
-        }
-
-        return nearestTarget;
-    }
-
-    private Transform FindNearestInArray(GameObject[] targets, ref float shortestDistance)
-    {
-        Transform nearestTarget = null;
-
-        foreach (GameObject target in targets)
-        {
-            // Skip null or inactive targets
-            if (target == null || !target.activeInHierarchy)
-            {
-                continue;
-            }
-
-            // Calculate distance to the target
-            float distance = Vector3.Distance(transform.position, target.transform.position);
-
-            // Update nearest target if this target is closer
-            if (distance < shortestDistance)
-            {
-                shortestDistance = distance;
-                nearestTarget = target.transform;
-            }
-        }
-
-        return nearestTarget;
     }
 }

@@ -1,22 +1,30 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class UnitSpawner : MonoBehaviour
 {
-    public UnitMovement unitPrefab; // Unit prefab to pool (must be a Component, e.g., MonoBehaviour)
-    public Transform spawnPoint;
-    public float spawnInterval = 5f; 
-    public int maxUnits = 10; 
+    public List<UnitMovement> unitPrefabs; // List of unit prefabs (different types)
+    public Transform spawnPoint; // Where units will spawn
+    public float spawnInterval = 5f; // Time between spawns
+    public int maxUnits = 10; // Maximum number of units allowed
 
     private float timer;
     public int currentUnits = 0;
 
     private ObjectPool<UnitMovement> unitPool; // Object pool for units
+    private int currentUnitIndex = 0; // Tracks the current unit prefab to spawn
 
-    private void Awake()
+    public void OnSelect()
     {
+        // Clear the existing pool if it exists
+        if (unitPool != null)
+        {
+            unitPool.Clear();
+        }
+
         // Initialize the object pool
         unitPool = new ObjectPool<UnitMovement>(
-            createFunc: () => Instantiate(unitPrefab), // Create a new unit
+            createFunc: CreateNextUnit, // Create the next unit in the list
             actionOnGet: (unit) => unit.Initialize(), // Initialize the unit when taken from the pool
             actionOnRelease: (unit) => unit.ResetUnit(), // Reset the unit when returned to the pool
             actionOnDestroy: (unit) => Destroy(unit.gameObject), // Destroy the unit if the pool is cleared
@@ -34,6 +42,7 @@ public class UnitSpawner : MonoBehaviour
     void Update()
     {
         timer += Time.deltaTime;
+
         if (timer >= spawnInterval && currentUnits < maxUnits)
         {
             SpawnUnit();
@@ -45,14 +54,62 @@ public class UnitSpawner : MonoBehaviour
     {
         // Get a unit from the pool
         UnitMovement unit = unitPool.Get();
-        unit.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
-        currentUnits++;
+        if (unit != null)
+        {
+            unit.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
+            currentUnits++;
+        }
     }
 
     public void UnitDefeated(UnitMovement unit)
     {
         // Return the unit to the pool
         unitPool.Release(unit);
-        //currentUnits--;
+        currentUnits--;
+    }
+
+    private UnitMovement CreateNextUnit()
+    {
+        // Check if the unitPrefabs list is empty
+        if (unitPrefabs == null || unitPrefabs.Count == 0)
+        {
+            Debug.LogError("No unit prefabs assigned in the list!");
+            return null;
+        }
+
+        // Get the next unit prefab in the list
+        UnitMovement unitPrefab = unitPrefabs[currentUnitIndex];
+
+        // Move to the next index (loop back to 0 if at the end of the list)
+        currentUnitIndex = (currentUnitIndex + 1) % unitPrefabs.Count;
+
+        // Instantiate the selected unit prefab
+        return Instantiate(unitPrefab);
+    }
+
+    public void AddUnitPrefab(UnitMovement newPrefab, int cardNumber)
+    {
+        if (newPrefab != null)
+        {
+            // Set the unitID of the new prefab
+            newPrefab.unitID = cardNumber;
+
+            // Search for an existing prefab with the same unitID
+            int index = unitPrefabs.FindIndex(prefab => prefab.unitID == cardNumber);
+            if (index != -1)
+            {
+                unitPrefabs[index] = newPrefab; // Replace the existing prefab
+            }
+            else
+            {
+                unitPrefabs.Add(newPrefab); // Add the new prefab if it doesn't exist
+            }
+
+            // Reset the currentUnitIndex to ensure it points to a valid prefab
+            currentUnitIndex = 0;
+
+            // Reinitialize the object pool with the updated prefabs
+            OnSelect();
+        }
     }
 }

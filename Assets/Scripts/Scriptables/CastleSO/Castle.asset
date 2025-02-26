@@ -10,12 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 362d761e29506a34bb0c7e33bdc8c72f, type: 3}
-  m_Name: Archer 3
+  m_Name: Castle
   m_EditorClassIdentifier: 
-  cardName: Archer
-  cardImage: {fileID: 21300000, guid: fd49f2c6790f2ec409f01e2808b095dc, type: 3}
-  level: 3
-  multiplier: 20
-  multiplier2: 20
+  cardName: Castle
+  cardImage: {fileID: 21300000, guid: 8209704cca2a0a7489bcba63265d86ab, type: 3}
+  background: {fileID: 21300000, guid: 4697cb815b97de04cbdbf59e6f157dfc, type: 3}
+  level: 1
+  multiplier: 1
+  initialHealth: 0
+  multiplier2: 1
+  initialDamage: 0
   multiplierType: Health
   multiplierType2: Attack
+  unitPrefab: {fileID: 0}

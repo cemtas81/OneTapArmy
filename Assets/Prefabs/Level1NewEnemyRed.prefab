@@ -56,7 +56,7 @@ Transform:
   m_GameObject: {fileID: 2245185973804207749}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: -0.011, y: 0.732, z: -0.591}
+  m_LocalPosition: {x: -0.011, y: 0.88, z: -0.529}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -144,7 +144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b262fd85b05470d41ac705284469b953, type: 3}
       propertyPath: m_TagString
-      value: EnemyBase
+      value: EnemyUnit
       objectReference: {fileID: 0}
     - target: {fileID: 2405346895699444999, guid: b262fd85b05470d41ac705284469b953, type: 3}
       propertyPath: m_Layer
@@ -201,7 +201,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de17d1315260c994d9783c14420ff9f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 4012626508789636039, guid: 50bc3d87114a49040ab8bace78a0fba4, type: 3}
+  enemyPrefabs:
+  - {fileID: 4012626508789636039, guid: 50bc3d87114a49040ab8bace78a0fba4, type: 3}
+  - {fileID: 4012626508789636039, guid: d58bcd3209a7e9241b966130b3af9075, type: 3}
   spawnPoint: {fileID: 5376933288744818004}
   spawnInterval: 2
   maxEnemies: 10
@@ -209,7 +211,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   currentEnemies: 0
-  attackTime: 5.33
+  attackTime: 3
 --- !u!65 &608878050579430170
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -275,9 +277,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnPoint: {fileID: 4725076475815572753}
-  spawnInterval: 1
-  attackRange: 50
+  spawnInterval: 5
+  shootHeight: 1
+  attackRange: 4
   isEnemyArrow: 1
+  damage: 50
 --- !u!4 &5300711009580785300 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b262fd85b05470d41ac705284469b953, type: 3}

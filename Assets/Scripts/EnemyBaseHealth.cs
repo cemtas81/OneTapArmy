@@ -9,7 +9,7 @@ public class EnemyBaseHealth : MonoBehaviour, IHealth
 
     private void Start()
     {
-        xpManager = FindFirstObjectByType<XPManager>(); 
+      
         health = maxHealth;
         xpManager = FindFirstObjectByType<XPManager>();
     }

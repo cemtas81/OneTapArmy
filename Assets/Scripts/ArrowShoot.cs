@@ -30,6 +30,13 @@ public class ArrowShoot : MonoBehaviour
 
     public void ShootArrow()
     {
+        // Check if startPoint or endPoint is null
+        if (startPoint == null || endPoint == null)
+        {
+            ResetUnit();
+            return;
+        }
+
         // Store the initial position
         previousPosition = startPoint.position;
 
@@ -89,7 +96,7 @@ public class ArrowShoot : MonoBehaviour
     {
         if (coll.gameObject.CompareTag("EnemyUnit"))
         {
-            if (coll.gameObject.TryGetComponent<EnemyHealth>(out var enemyHealth))
+            if (coll.gameObject.TryGetComponent<IHealth>(out var enemyHealth))
             {
                 enemyHealth.TakeDamage(damage);
                 ResetUnit();
@@ -100,7 +107,7 @@ public class ArrowShoot : MonoBehaviour
     {
         if (coll.gameObject.CompareTag("PlayerUnit"))
         {
-            if (coll.gameObject.TryGetComponent<UnitHealth>(out var playerHealth))
+            if (coll.gameObject.TryGetComponent<IHealth>(out var playerHealth))
             {
                 playerHealth.TakeDamage(damage);
                 ResetUnit();

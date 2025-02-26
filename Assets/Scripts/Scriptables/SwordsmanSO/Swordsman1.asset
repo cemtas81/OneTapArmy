@@ -12,10 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 362d761e29506a34bb0c7e33bdc8c72f, type: 3}
   m_Name: Swordsman1
   m_EditorClassIdentifier: 
+  cardNumber: 2
   cardName: Swordsman
   cardImage: {fileID: 21300000, guid: cc8ad713fee63bc45898bc7997a61e33, type: 3}
-  level: 1
-  multiplier: 1
-  multiplier2: 1
+  background: {fileID: 21300000, guid: 5c04352150e835545bf5e3ccf80eed8c, type: 3}
+  level: 0
+  multiplier: 0
+  initialHealth: 0
+  multiplier2: 0
+  initialDamage: 0
   multiplierType: Health
   multiplierType2: Attack
+  unitPrefab: {fileID: 6368280036003151826, guid: b801a1098dbb30846a80eae1c3861cbe, type: 3}

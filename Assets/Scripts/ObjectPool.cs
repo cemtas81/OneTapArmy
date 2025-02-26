@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -18,7 +17,7 @@ public class ObjectPool<T> where T : Component
         Action<T> actionOnDestroy = null,
         int defaultCapacity = 10)
     {
-        this.createFunc = createFunc;
+        this.createFunc = createFunc ?? throw new ArgumentNullException(nameof(createFunc));
         this.actionOnGet = actionOnGet;
         this.actionOnRelease = actionOnRelease;
         this.actionOnDestroy = actionOnDestroy;

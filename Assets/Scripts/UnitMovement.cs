@@ -3,14 +3,14 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
 
-public class UnitMovement : MonoBehaviour
+public class UnitMovement : MonoBehaviour,IUpgrade
 {
-    public float speed = 3f;
+  
     public float attackRange = 2f;
     public int attackDamage = 10, maxUnit;
     private Vector3 targetPosition;
     private TapController tapController;
-    private Transform attackTarget;
+    public Transform attackTarget;
     private NavMeshAgent agent;
     private Animator anim;
     private readonly int _attack = Animator.StringToHash("Attack");
@@ -23,7 +23,8 @@ public class UnitMovement : MonoBehaviour
     private UnitSpawner spawner;
     private bool isDead;
     private float distanceToTarget;
-
+    public bool isArcher;
+    public int unitID; // Unique identifier for the unit
     private void Start()
     {
         targetPosition = transform.position;
@@ -34,11 +35,21 @@ public class UnitMovement : MonoBehaviour
     }
     private void OnEnable()
     {
+       
+        attackTarget = null;
+        isDead = false;
         tapController = FindFirstObjectByType<TapController>();
         tapController?.move.AddListener(SetTarget);
-
+       
     }
-    
+    private void OnDisable()
+    {
+        tapController?.move.RemoveListener(SetTarget);
+    }
+    public void Upgrade(int level)
+    {
+       attackDamage = (int)(attackDamage * (1 + level / 100f));
+    }
     public void Initialize()
     {
         gameObject.SetActive(true);
@@ -124,11 +135,25 @@ public class UnitMovement : MonoBehaviour
     }
     private void AttackTarget()
     {
-        if (attackTarget == null || !attackTarget.gameObject.activeInHierarchy) return; // Exit if no target
-        agent.updateRotation = false;
-        agent.isStopped = true;
-        transform.LookAt(attackTarget);      
-        anim.SetBool(_attack, true);    
+        if (attackTarget == null || !attackTarget.gameObject.activeInHierarchy)
+        {
+            StopAttacking(); // Exit if no target
+            return;
+        }
+
+        transform.LookAt(attackTarget);
+        anim.SetBool(_attack, true);
+
+        if (isArcher)
+        {
+            anim.SetFloat("Speed", .6f);
+        }
+
+        if (agent.enabled)
+        {
+            agent.isStopped = true;
+            agent.updateRotation = false;
+        }
     }
 
     private void StopAttacking()

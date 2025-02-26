@@ -3,7 +3,12 @@ guid: 069343f771122324aad8056d87f5b3ab
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Goblin.Texture
+    second: {fileID: 2100000, guid: 9c6b2e1fb5b726048920f0156d7904ec, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

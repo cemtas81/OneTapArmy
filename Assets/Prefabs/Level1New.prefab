@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 2242921350570527534}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.706, z: 0.616}
+  m_LocalPosition: {x: 0, y: 0.847, z: 0.552}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -144,7 +144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b262fd85b05470d41ac705284469b953, type: 3}
       propertyPath: m_TagString
-      value: PlayerBase
+      value: PlayerUnit
       objectReference: {fileID: 0}
     - target: {fileID: 2405346895699444999, guid: b262fd85b05470d41ac705284469b953, type: 3}
       propertyPath: m_Layer
@@ -201,12 +201,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7629752265033136968}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba8355d536d7ee8409360e3f2a26355e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitPrefab: {fileID: 5149061207186751953, guid: b801a1098dbb30846a80eae1c3861cbe, type: 3}
+  unitPrefab: {fileID: 2648503256056377628, guid: ffcb22ac93b8e10448552589860cd7c7, type: 3}
   spawnPoint: {fileID: 8261155091445929461}
   spawnInterval: 2
   maxUnits: 10
@@ -224,9 +224,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnPoint: {fileID: 3184006880867202137}
-  spawnInterval: 1
-  attackRange: 50
+  spawnInterval: 5
+  shootHeight: 1
+  attackRange: 4
   isEnemyArrow: 0
+  damage: 10
 --- !u!65 &3944151760153048874
 BoxCollider:
   m_ObjectHideFlags: 0
