@@ -63,11 +63,20 @@ public class UnitSpawner : MonoBehaviour
 
     public void UnitDefeated(UnitMovement unit)
     {
-        // Return the unit to the pool
-        unitPool.Release(unit);
+        // Check if the unit's prefab is still in the list
+        if (unitPrefabs.Exists(prefab => prefab.unitID == unit.unitID))
+        {
+            // Return the unit to the pool
+            unitPool.Release(unit);
+        }
+        else
+        {
+            // Destroy the unit if its prefab is no longer in the list
+            Destroy(unit.gameObject);
+        }
+
         currentUnits--;
     }
-
     private UnitMovement CreateNextUnit()
     {
         // Check if the unitPrefabs list is empty
@@ -77,11 +86,11 @@ public class UnitSpawner : MonoBehaviour
             return null;
         }
 
-        // Get the next unit prefab in the list
-        UnitMovement unitPrefab = unitPrefabs[currentUnitIndex];
+        // Generate a random index within the range of the list
+        int randomIndex = Random.Range(0, unitPrefabs.Count);
 
-        // Move to the next index (loop back to 0 if at the end of the list)
-        currentUnitIndex = (currentUnitIndex + 1) % unitPrefabs.Count;
+        // Get the unit prefab at the random index
+        UnitMovement unitPrefab = unitPrefabs[randomIndex];
 
         // Instantiate the selected unit prefab
         return Instantiate(unitPrefab);

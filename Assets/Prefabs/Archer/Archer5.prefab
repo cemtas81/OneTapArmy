@@ -979,7 +979,7 @@ MonoBehaviour:
   canvas: {fileID: 5489352648986185163}
   distanceMultiplier: 1
   isArcher: 1
-  unitID: Archer
+  unitID: 1
 --- !u!114 &5373670914800556094
 MonoBehaviour:
   m_ObjectHideFlags: 0
