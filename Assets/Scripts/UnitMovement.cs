@@ -1,5 +1,4 @@
 
-using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
@@ -24,9 +23,11 @@ public class UnitMovement : MonoBehaviour, IUpgrade
     private UnitSpawner spawner;
     private bool isDead;
     private float distanceToTarget;
-    public bool isArcher;
+    public bool isArcher,isGiant;
     public int unitID; // Unique identifier for the unit
     public int cardID; // Unique identifier for the card    
+    private Collider[] hitColliders;
+
     private void Start()
     {
         targetPosition = transform.position;
@@ -101,7 +102,14 @@ public class UnitMovement : MonoBehaviour, IUpgrade
 
     void Animating(float velocity)
     {
-        anim.SetFloat(_velocity, velocity);
+        if (!isGiant)
+        {
+            anim.SetFloat(_velocity, velocity);
+        }
+        else
+        {
+            anim.SetFloat(_velocity, velocity * .35f);
+        }
     }
     void Movement()
     {
@@ -135,7 +143,7 @@ public class UnitMovement : MonoBehaviour, IUpgrade
     private void ChaseTarget()
     {
         anim.SetBool(_attack, false);
-        FindAttackTarget();
+        agent.SetDestination(attackTarget.position);
     }
     private void AttackTarget()
     {
@@ -179,7 +187,7 @@ public class UnitMovement : MonoBehaviour, IUpgrade
     void FindAttackTarget()
     {
         // Define a sphere to check for enemies within attack range
-        Collider[] hitColliders = new Collider[maxUnit];
+        hitColliders = new Collider[maxUnit];
         int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchDistance, hitColliders, layerMask);
 
         Transform nearestTarget = null;

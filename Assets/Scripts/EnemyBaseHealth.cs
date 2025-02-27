@@ -1,15 +1,19 @@
 using UnityEngine;
-
-public class EnemyBaseHealth : MonoBehaviour, IHealth,IUpgrade
+public enum EnemyType
+{
+    Red,
+    Yellow,
+    Purple
+}
+public class EnemyBaseHealth : MonoBehaviour, IHealth, IUpgrade
 {
     public int health;
-    public int xp; 
-    private XPManager xpManager; 
+    public int xp;
+    private XPManager xpManager;
     public int maxHealth;
 
     private void Start()
     {
-      
         health = maxHealth;
         xpManager = FindFirstObjectByType<XPManager>();
     }
@@ -26,7 +30,7 @@ public class EnemyBaseHealth : MonoBehaviour, IHealth,IUpgrade
             Destroy(gameObject);
         }
     }
-  
+
 }
 
 

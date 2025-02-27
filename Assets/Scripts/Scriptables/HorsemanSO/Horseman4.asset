@@ -12,12 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 362d761e29506a34bb0c7e33bdc8c72f, type: 3}
   m_Name: Horseman4
   m_EditorClassIdentifier: 
+  cardNumber: 4
   cardName: Horseman
   cardImage: {fileID: 21300000, guid: 8793f51493f7d294ebda7584aa2453f3, type: 3}
   background: {fileID: 21300000, guid: 57012183bb56d1e46a1c3a5ee1618463, type: 3}
   level: 4
   multiplier: 30
+  initialHealth: 0
   multiplier2: 30
+  initialDamage: 0
   multiplierType: Health
   multiplierType2: Attack
-  unitPrefab: {fileID: 0}
+  unitPrefab: {fileID: 4274949742395457900, guid: 6283a2afd1358c940aa804ae1e37c1b8, type: 3}

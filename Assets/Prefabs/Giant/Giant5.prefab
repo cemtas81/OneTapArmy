@@ -789,8 +789,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   canvas: {fileID: 3163156424912204067}
-  searchDistance: 6
+  searchDistance: 4
   isArcher: 0
+  isGiant: 1
   unitID: 20
   cardID: 0
 --- !u!65 &5186733135252413598
@@ -846,7 +847,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 2.5
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -868,7 +869,7 @@ Animator:
   m_GameObject: {fileID: 3693515443737803385}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: fdf4ff2d458951d49bcd5f5d9136b92d, type: 3}
-  m_Controller: {fileID: 22100000, guid: f3b56121bf9854046a9a12788ffcb0dc, type: 2}
+  m_Controller: {fileID: 22100000, guid: a95c46bb0c283a848ab23f7d887db2e8, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

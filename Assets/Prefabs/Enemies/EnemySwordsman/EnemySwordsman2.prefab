@@ -824,6 +824,10 @@ MonoBehaviour:
   - {fileID: 6901141068780323123}
   deadMaterial: {fileID: 1270278648817234664, guid: 2a83db3ee540a7b488d900119a7c86a5, type: 3}
   aliveMaterial: {fileID: 2100000, guid: 007fc2c124cddb1479521826ccb5f777, type: 2}
+  materials:
+  - {fileID: 2100000, guid: 007fc2c124cddb1479521826ccb5f777, type: 2}
+  - {fileID: 2100000, guid: 68320c901d6f538499c9f0cc48cb68c3, type: 2}
+  - {fileID: 2100000, guid: 253494a87bc7fdc469c396feb23827be, type: 2}
 --- !u!114 &4012626508789636039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -837,16 +841,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waitTime: 2
-  attackRange: 1.5
+  attackRange: 1.2
   moveSpeed: 25
   damage: 10
   target: {fileID: 0}
   isArcher: 0
   canvas: {fileID: 5489352648986185163}
-  searchRange: 4
+  searchRange: 3
   maxUnits: 20
   enemyID: 3
   maxRange: 15
+  searchLayers:
+    serializedVersion: 2
+    m_Bits: 192
+  enemyType: 0
 --- !u!195 &-1228160371978833391
 NavMeshAgent:
   m_ObjectHideFlags: 0

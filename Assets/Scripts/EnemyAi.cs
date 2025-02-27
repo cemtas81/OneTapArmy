@@ -14,12 +14,15 @@ public class EnemyAI : MonoBehaviour
     private readonly int _death = Animator.StringToHash("Death");
     [SerializeField] private Canvas canvas;
     private Camera mainCamera;
-    private EnemySpawner spawner;
+    public EnemySpawner spawner;
     public float searchRange;
     private bool isAttacking = false;
     public int maxUnits=15;
     public int enemyID;
     public float maxRange=15;
+    private Collider[] hitColliders;
+    [SerializeField] private LayerMask searchLayers;
+    public EnemyType enemyType;
 
     public void Initialize()
     {
@@ -35,12 +38,12 @@ public class EnemyAI : MonoBehaviour
     {
         isAttacking = false;
         target = null;
-        spawner.charge.AddListener(StartAttacking);
+        spawner?.charge.AddListener(StartAttacking);
     }
 
     private void OnDisable()
     {
-        spawner.charge.RemoveListener(StartAttacking);
+        spawner?.charge.RemoveListener(StartAttacking);
         agent.enabled = true;
     }
 
@@ -49,9 +52,9 @@ public class EnemyAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         mainCamera = Camera.main;
-        spawner = FindFirstObjectByType<EnemySpawner>();
+        //spawner = FindFirstObjectByType<EnemySpawner>();
     }
-
+    
     void StartAttacking()
     {
         searchRange = maxRange;
@@ -78,9 +81,9 @@ public class EnemyAI : MonoBehaviour
 
     void CheckForNearbyTargets()
     {
-        // Define a sphere to check for targets within attack range
+        // Define a sphere to check for targets within search range
         Collider[] hitColliders = new Collider[maxUnits]; // Use a reasonable size for the array
-        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchRange, hitColliders, LayerMask.GetMask("PlayerUnit", "PlayerBase"));
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchRange, hitColliders, searchLayers);
 
         Transform nearestTarget = null;
         float shortestDistance = Mathf.Infinity;
@@ -92,6 +95,10 @@ public class EnemyAI : MonoBehaviour
             if (hitColliders[i] == null || !hitColliders[i].gameObject.activeInHierarchy)
                 continue;
 
+            // Skip if the collider is this enemy itself
+            if (hitColliders[i].transform == transform)
+                continue;
+
             // Calculate the distance to the current collider
             float distance = Vector3.Distance(transform.position, hitColliders[i].transform.position);
 
@@ -99,12 +106,16 @@ public class EnemyAI : MonoBehaviour
             if (distance >= shortestDistance)
                 continue;
 
-            // Update the nearest target and shortest distance
-            shortestDistance = distance;
-            nearestTarget = hitColliders[i].transform;
+            // Check if the target is valid (player unit/base or another enemy type)
+            if (IsValidTarget(hitColliders[i].transform))
+            {
+                // Update the nearest target and shortest distance
+                shortestDistance = distance;
+                nearestTarget = hitColliders[i].transform;
+            }
         }
 
-        // If a target is found within attack range, set isAttacking to true
+        // If a target is found within search range, set isAttacking to true
         if (nearestTarget != null)
         {
             target = nearestTarget;
@@ -214,21 +225,34 @@ public class EnemyAI : MonoBehaviour
 
     public void Damaging()
     {
-        if (target != null && target.gameObject.activeInHierarchy && target.TryGetComponent<UnitHealth>(out UnitHealth unitHealth))
+        if (target == null || !target.gameObject.activeInHierarchy)
+            return;
+
+        // Damage player units or bases
+        if (target.TryGetComponent<UnitHealth>(out UnitHealth unitHealth))
         {
             unitHealth.TakeDamage(damage);
         }
-        else if (target != null && target.gameObject.activeInHierarchy && target.TryGetComponent<BaseHealth>(out BaseHealth baseHealth))
+        else if (target.TryGetComponent<BaseHealth>(out BaseHealth baseHealth))
         {
             baseHealth.TakeDamage(damage);
         }
+        // Damage other enemy types
+        else if (target.TryGetComponent<EnemyAI>(out EnemyAI enemyAI) && enemyAI.enemyType != this.enemyType)
+        {
+            // Assuming EnemyAI has a Health component or similar
+            if (enemyAI.TryGetComponent<EnemyHealth>(out EnemyHealth enemyHealth))
+            {
+                enemyHealth.TakeDamage(damage);
+            }
+        }
     }
 
-    public void FindTarget()
+    void FindTarget()
     {
-        // Define a sphere to check for targets within attack range
-        Collider[] hitColliders = new Collider[maxUnits]; // Use a reasonable size for the array
-        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchRange, hitColliders, LayerMask.GetMask("PlayerUnit", "PlayerBase"));
+        // Define a sphere to check for targets within search range
+        hitColliders = new Collider[maxUnits]; // Use a reasonable size for the array
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchRange, hitColliders, searchLayers);
 
         Transform nearestTarget = null;
         float shortestDistance = Mathf.Infinity;
@@ -240,6 +264,10 @@ public class EnemyAI : MonoBehaviour
             if (hitColliders[i] == null || !hitColliders[i].gameObject.activeInHierarchy)
                 continue;
 
+            // Skip if the collider is this enemy itself
+            if (hitColliders[i].transform == transform)
+                continue;
+
             // Calculate the distance to the current collider
             float distance = Vector3.Distance(transform.position, hitColliders[i].transform.position);
 
@@ -247,9 +275,13 @@ public class EnemyAI : MonoBehaviour
             if (distance >= shortestDistance)
                 continue;
 
-            // Update the nearest target and shortest distance
-            shortestDistance = distance;
-            nearestTarget = hitColliders[i].transform;
+            // Check if the target is valid (player unit/base or another enemy type)
+            if (IsValidTarget(hitColliders[i].transform))
+            {
+                // Update the nearest target and shortest distance
+                shortestDistance = distance;
+                nearestTarget = hitColliders[i].transform;
+            }
         }
 
         // Set the nearest target or clear it if no target is found
@@ -261,5 +293,23 @@ public class EnemyAI : MonoBehaviour
         {
             StopAttacking(); // Stop attacking if no target is found
         }
+    }
+
+    bool IsValidTarget(Transform potentialTarget)
+    {
+        // Check if the target is a player unit or base
+        if (potentialTarget.CompareTag("PlayerUnit") || potentialTarget.CompareTag("PlayerBase"))
+        {
+            return true;
+        }
+
+        // Check if the target is another enemy of a different type
+        if (potentialTarget.TryGetComponent<EnemyAI>(out EnemyAI enemyAI))
+        {
+            // Attack other enemy types only if they are of a different type
+            return enemyAI.enemyType != this.enemyType;
+        }
+
+        return false;
     }
 }

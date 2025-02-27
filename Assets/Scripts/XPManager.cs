@@ -12,6 +12,7 @@ public class XPManager : MonoBehaviour
     {
         xpBar.maxValue = maxXP;
         xpBar.value = currentXP;
+        newCardPanel.SetActive(true);
     }
 
     public void AddXP(int amount)

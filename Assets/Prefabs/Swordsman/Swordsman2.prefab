@@ -879,7 +879,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae4afed7b7f8c7740ba074dfb955c43f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackRange: 1.5
+  attackRange: 1.2
   attackDamage: 11
   maxUnit: 20
   attackTarget: {fileID: 0}
@@ -887,7 +887,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   canvas: {fileID: 418068545998124513}
-  searchDistance: 4
+  searchDistance: 3
   isArcher: 0
   unitID: 7
   cardID: 2

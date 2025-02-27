@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 public class UnitSpawner : MonoBehaviour,IUpgrade
 {
-    public List<UnitMovement> unitPrefabs; // List of unit prefabs (different types)
-    public Transform spawnPoint; // Where units will spawn
-    public float spawnInterval = 5f; // Time between spawns
-    public int maxUnits = 50; // Maximum number of units allowed
+    public List<UnitMovement> unitPrefabs;
+    public Transform spawnPoint; 
+    public float spawnInterval = 5f; 
+    public int maxUnits = 50; 
 
     private float timer;
     public int currentUnits = 0;
@@ -15,7 +15,6 @@ public class UnitSpawner : MonoBehaviour,IUpgrade
     private Queue<int> spawnQueue = new Queue<int>();
     private int nextSpawnIndex = 0;
 
-    // For object pooling
     private List<UnitMovement> activeUnits = new List<UnitMovement>();
     private List<UnitMovement> pooledUnits = new List<UnitMovement>();
 
@@ -115,7 +114,6 @@ public class UnitSpawner : MonoBehaviour,IUpgrade
     {
         Vector3 spawnPosition = GetUniqueSpawnPosition();
         unit.transform.SetPositionAndRotation(spawnPosition, spawnPoint.rotation);
-        unit.gameObject.SetActive(true);
         unit.Initialize();
 
         pooledUnits.Remove(unit);

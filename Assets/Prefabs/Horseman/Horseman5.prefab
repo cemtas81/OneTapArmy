@@ -1547,7 +1547,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   canvas: {fileID: 1737277487580066873}
-  searchDistance: 6
+  searchDistance: 4
   isArcher: 0
   unitID: 6
   cardID: 25

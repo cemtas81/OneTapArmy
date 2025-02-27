@@ -20,7 +20,7 @@ public class EnemySpawner : MonoBehaviour,IUpgrade
     // For ensuring balanced spawning
     private Queue<int> spawnOrder = new Queue<int>();
     private int currentEnemyIndex = 0; // Tracks the current enemy prefab to spawn
-
+    public EnemyType enemyType;
     // Object pool for enemies
     private ObjectPool<EnemyAI> enemyPool;
 
@@ -70,6 +70,7 @@ public class EnemySpawner : MonoBehaviour,IUpgrade
     }
 
     public void OnUpgrade()
+
     {
         InitializePool();
     }
@@ -139,7 +140,8 @@ public class EnemySpawner : MonoBehaviour,IUpgrade
 
         // Instantiate the selected enemy prefab
         EnemyAI newEnemy = Instantiate(enemyPrefab);
-
+        newEnemy.enemyType = enemyType;
+        newEnemy.spawner = this;
         return newEnemy;
     }
 
@@ -160,7 +162,6 @@ public class EnemySpawner : MonoBehaviour,IUpgrade
             // Add as a new enemy type
             enemyPrefabs.Add(newEnemyPrefab);
         }
-
         // Reinitialize the pool with updated prefabs
         InitializePool();
     }
