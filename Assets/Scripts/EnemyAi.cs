@@ -5,7 +5,6 @@ public class EnemyAI : MonoBehaviour
 {
     public float waitTime = 2f, attackRange = 1f, moveSpeed = 3f;
     public int damage;
-    public float attackInterval = 1f; // Interval between attacks
     public Transform target;
     public bool isArcher;
     private NavMeshAgent agent;
@@ -16,9 +15,11 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private Canvas canvas;
     private Camera mainCamera;
     private EnemySpawner spawner;
-    public float distanceMultiplier;
+    public float searchRange;
     private bool isAttacking = false;
-    public int maxUnits;
+    public int maxUnits=15;
+    public int enemyID;
+    public float maxRange=15;
 
     public void Initialize()
     {
@@ -36,34 +37,79 @@ public class EnemyAI : MonoBehaviour
         target = null;
         spawner.charge.AddListener(StartAttacking);
     }
+
     private void OnDisable()
     {
         spawner.charge.RemoveListener(StartAttacking);
         agent.enabled = true;
     }
+
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         mainCamera = Camera.main;
         spawner = FindFirstObjectByType<EnemySpawner>();
-        
     }
 
     void StartAttacking()
     {
-        isAttacking = true;
-        FindTarget();
+        searchRange = maxRange;
+        isAttacking = true; // Only set isAttacking to true, no movement logic here
     }
 
     void Update()
     {
+        // Check for nearby targets even if isAttacking is false
+        if (!isAttacking)
+        {
+            CheckForNearbyTargets();
+        }
+
+        // Only move and attack if isAttacking is true
         if (isAttacking)
         {
             Movement();
         }
+
         canvas.transform.LookAt(mainCamera.transform);
         Animating(agent.velocity.magnitude);
+    }
+
+    void CheckForNearbyTargets()
+    {
+        // Define a sphere to check for targets within attack range
+        Collider[] hitColliders = new Collider[maxUnits]; // Use a reasonable size for the array
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchRange, hitColliders, LayerMask.GetMask("PlayerUnit", "PlayerBase"));
+
+        Transform nearestTarget = null;
+        float shortestDistance = Mathf.Infinity;
+
+        // Iterate through all the colliders found
+        for (int i = 0; i < hitCount; i++)
+        {
+            // Skip null or inactive colliders
+            if (hitColliders[i] == null || !hitColliders[i].gameObject.activeInHierarchy)
+                continue;
+
+            // Calculate the distance to the current collider
+            float distance = Vector3.Distance(transform.position, hitColliders[i].transform.position);
+
+            // Skip if the current collider is not closer than the previous nearest target
+            if (distance >= shortestDistance)
+                continue;
+
+            // Update the nearest target and shortest distance
+            shortestDistance = distance;
+            nearestTarget = hitColliders[i].transform;
+        }
+
+        // If a target is found within attack range, set isAttacking to true
+        if (nearestTarget != null)
+        {
+            target = nearestTarget;
+            isAttacking = true; // Start attacking
+        }
     }
 
     void Movement()
@@ -86,7 +132,7 @@ public class EnemyAI : MonoBehaviour
     void HandleAttackTarget()
     {
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
-        if (distanceToTarget <= attackRange * distanceMultiplier)
+        if (distanceToTarget <= attackRange)
         {
             AttackTarget();
         }
@@ -105,7 +151,6 @@ public class EnemyAI : MonoBehaviour
             agent.updateRotation = true;
             agent.SetDestination(target.position);
         }
-     
     }
 
     void Animating(float velocity)
@@ -144,7 +189,7 @@ public class EnemyAI : MonoBehaviour
             agent.isStopped = false;
             agent.updateRotation = true;
         }
-          
+
         target = null; // Clear the target
     }
 
@@ -160,6 +205,11 @@ public class EnemyAI : MonoBehaviour
     {
         spawner.EnemyDefeated(this);
         ResetEnemy();
+    }
+
+    public int GetEnemyID()
+    {
+        return enemyID;
     }
 
     public void Damaging()
@@ -178,7 +228,7 @@ public class EnemyAI : MonoBehaviour
     {
         // Define a sphere to check for targets within attack range
         Collider[] hitColliders = new Collider[maxUnits]; // Use a reasonable size for the array
-        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, attackRange, hitColliders, LayerMask.GetMask("PlayerUnit", "PlayerBase"));
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchRange, hitColliders, LayerMask.GetMask("PlayerUnit", "PlayerBase"));
 
         Transform nearestTarget = null;
         float shortestDistance = Mathf.Infinity;

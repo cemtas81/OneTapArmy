@@ -21,7 +21,7 @@ public class XPManager : MonoBehaviour
 
         if (currentXP >= maxXP)
         {
-            ShowNewCards(); // Call this method to display new cards
+            ShowNewCards();
             currentXP = 0; // Reset XP
             xpBar.value = currentXP;
         }
@@ -30,7 +30,6 @@ public class XPManager : MonoBehaviour
     void ShowNewCards()
     {
         // Logic to display new unit cards
-        Debug.Log("New cards available!");
         newCardPanel.SetActive(true);
     }
     

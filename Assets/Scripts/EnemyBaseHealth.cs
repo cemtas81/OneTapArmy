@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class EnemyBaseHealth : MonoBehaviour, IHealth
+public class EnemyBaseHealth : MonoBehaviour, IHealth,IUpgrade
 {
     public int health;
     public int xp; 
@@ -12,6 +12,10 @@ public class EnemyBaseHealth : MonoBehaviour, IHealth
       
         health = maxHealth;
         xpManager = FindFirstObjectByType<XPManager>();
+    }
+    public void Upgrade(int level)
+    {
+        maxHealth = (int)(maxHealth * (1 + level / 100f));
     }
     public void TakeDamage(int damage)
     {

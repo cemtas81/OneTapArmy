@@ -12,10 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 362d761e29506a34bb0c7e33bdc8c72f, type: 3}
   m_Name: Warrior5
   m_EditorClassIdentifier: 
+  cardNumber: 0
   cardName: Warrior
   cardImage: {fileID: 21300000, guid: 3169e432cabafc04cb0cda70ee75e100, type: 3}
+  background: {fileID: 21300000, guid: dc172460a1ddbd64488d3d6fe29f38a7, type: 3}
   level: 5
   multiplier: 40
+  initialHealth: 0
   multiplier2: 40
+  initialDamage: 0
   multiplierType: Health
   multiplierType2: Attack
+  unitPrefab: {fileID: 7448748290247042982, guid: 0ea9abcb8119e4347ad384143bb555a6, type: 3}

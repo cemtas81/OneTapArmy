@@ -1,124 +1,282 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class UnitSpawner : MonoBehaviour
+public class UnitSpawner : MonoBehaviour,IUpgrade
 {
     public List<UnitMovement> unitPrefabs; // List of unit prefabs (different types)
     public Transform spawnPoint; // Where units will spawn
     public float spawnInterval = 5f; // Time between spawns
-    public int maxUnits = 10; // Maximum number of units allowed
+    public int maxUnits = 50; // Maximum number of units allowed
 
     private float timer;
     public int currentUnits = 0;
 
-    private ObjectPool<UnitMovement> unitPool; // Object pool for units
-    private int currentUnitIndex = 0; // Tracks the current unit prefab to spawn
+    // To keep track of the current spawn sequence
+    private Queue<int> spawnQueue = new Queue<int>();
+    private int nextSpawnIndex = 0;
+
+    // For object pooling
+    private List<UnitMovement> activeUnits = new List<UnitMovement>();
+    private List<UnitMovement> pooledUnits = new List<UnitMovement>();
+
+    private void Start()
+    {
+        PrePopulatePool();
+        RefreshSpawnQueue();
+    }
 
     public void OnSelect()
     {
-        // Clear the existing pool if it exists
-        if (unitPool != null)
+        ClearPooledUnits();
+        PrePopulatePool();
+        RefreshSpawnQueue();
+    }
+    public void Upgrade(int level)
+    {
+        spawnInterval *= (1 - level / 100f); // Decrease spawnInterval by a percentage based on level
+    }
+    private void ClearPooledUnits()
+    {
+        foreach (var unit in pooledUnits)
         {
-            unitPool.Clear();
+            if (unit != null)
+                Destroy(unit.gameObject);
         }
+        pooledUnits.Clear();
+    }
 
-        // Initialize the object pool
-        unitPool = new ObjectPool<UnitMovement>(
-            createFunc: CreateNextUnit, // Create the next unit in the list
-            actionOnGet: (unit) => unit.Initialize(), // Initialize the unit when taken from the pool
-            actionOnRelease: (unit) => unit.ResetUnit(), // Reset the unit when returned to the pool
-            actionOnDestroy: (unit) => Destroy(unit.gameObject), // Destroy the unit if the pool is cleared
-            defaultCapacity: maxUnits // Initial pool size
-        );
+    private void PrePopulatePool()
+    {
+        if (unitPrefabs == null || unitPrefabs.Count == 0)
+            return;
 
-        // Pre-instantiate units
-        for (int i = 0; i < maxUnits; i++)
+        int unitsPerType = Mathf.Max(1, maxUnits / unitPrefabs.Count);
+
+        for (int i = 0; i < unitPrefabs.Count; i++)
         {
-            UnitMovement unit = unitPool.Get();
-            unitPool.Release(unit);
+            for (int j = 0; j < unitsPerType; j++)
+            {
+                if (pooledUnits.Count < maxUnits)
+                {
+                    UnitMovement newUnit = CreateUnitOfType(i);
+                    newUnit.gameObject.SetActive(false);
+                    pooledUnits.Add(newUnit);
+                }
+            }
         }
     }
 
-    void Update()
+    private void RefreshSpawnQueue()
+    {
+        spawnQueue.Clear();
+
+        for (int i = 0; i < unitPrefabs.Count; i++)
+        {
+            spawnQueue.Enqueue(i);
+        }
+    }
+
+    private void Update()
     {
         timer += Time.deltaTime;
 
         if (timer >= spawnInterval && currentUnits < maxUnits)
         {
-            SpawnUnit();
+            SpawnNextUnit();
             timer = 0f;
         }
     }
 
-    void SpawnUnit()
+    private void SpawnNextUnit()
     {
-        // Get a unit from the pool
-        UnitMovement unit = unitPool.Get();
+        if (unitPrefabs.Count == 0)
+            return;
+
+        if (spawnQueue.Count == 0)
+        {
+            RefreshSpawnQueue();
+        }
+
+        nextSpawnIndex = spawnQueue.Dequeue();
+
+        UnitMovement unit = GetPooledUnitOfType(nextSpawnIndex);
+
         if (unit != null)
         {
-            unit.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
-            currentUnits++;
+            ActivateUnit(unit);
         }
+        else
+        {
+            Debug.LogWarning($"Failed to find pooled unit of type index {nextSpawnIndex}");
+        }
+    }
+
+    private void ActivateUnit(UnitMovement unit)
+    {
+        Vector3 spawnPosition = GetUniqueSpawnPosition();
+        unit.transform.SetPositionAndRotation(spawnPosition, spawnPoint.rotation);
+        unit.gameObject.SetActive(true);
+        unit.Initialize();
+
+        pooledUnits.Remove(unit);
+        activeUnits.Add(unit);
+        currentUnits++;
+    }
+    private List<Vector3> occupiedPositions = new List<Vector3>(); // Track occupied positions
+
+    private Vector3 GetUniqueSpawnPosition()
+    {
+        Vector3 spawnPosition = spawnPoint.position;
+        float offset = .8f; // Adjust this value based on unit size
+        int unitsPerRow = 5; // Number of units per row in the grid
+
+        int maxAttempts = 100; // Prevent infinite loops
+        int attempts = 0;
+
+        while (attempts < maxAttempts)
+        {
+            // Calculate the row and column based on the currentUnits count
+            int row = currentUnits / unitsPerRow;
+            int column = currentUnits % unitsPerRow;
+
+            // Calculate the spawn position based on the row and column
+            Vector3 newPosition = spawnPosition + new Vector3(column * offset, 0, -row * offset);
+
+            // Check if the position is already occupied
+            if (!IsPositionOccupied(newPosition))
+            {
+                occupiedPositions.Add(newPosition); // Mark this position as occupied
+                return newPosition;
+            }
+
+            // If the position is occupied, try the next position
+            //currentUnits++;
+            attempts++;
+        }
+
+        return spawnPosition;
+    }
+
+    private bool IsPositionOccupied(Vector3 position)
+    {
+        // Check if the position is already in the occupiedPositions list
+        foreach (var occupiedPosition in occupiedPositions)
+        {
+            if (Vector3.Distance(occupiedPosition, position) < 0.1f) // Tolerance for floating-point precision
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void UnitDefeated(UnitMovement unit)
     {
-        // Check if the unit's prefab is still in the list
-        if (unitPrefabs.Exists(prefab => prefab.unitID == unit.unitID))
+        if (IsUnitStillValid(unit))
         {
-            // Return the unit to the pool
-            unitPool.Release(unit);
+            ReturnUnitToPool(unit);
         }
         else
         {
-            // Destroy the unit if its prefab is no longer in the list
-            Destroy(unit.gameObject);
+            DestroyUnit(unit);
         }
 
         currentUnits--;
     }
-    private UnitMovement CreateNextUnit()
+
+    private bool IsUnitStillValid(UnitMovement unit)
     {
-        // Check if the unitPrefabs list is empty
-        if (unitPrefabs == null || unitPrefabs.Count == 0)
+        foreach (var prefab in unitPrefabs)
         {
-            Debug.LogError("No unit prefabs assigned in the list!");
+            if (prefab.unitID == unit.unitID)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void ReturnUnitToPool(UnitMovement unit)
+    {
+        unit.ResetUnit();
+        unit.gameObject.SetActive(false);
+        activeUnits.Remove(unit);
+        pooledUnits.Add(unit);
+    }
+
+    private void DestroyUnit(UnitMovement unit)
+    {
+        activeUnits.Remove(unit);
+        Destroy(unit.gameObject);
+    }
+
+    private UnitMovement GetPooledUnitOfType(int typeIndex)
+    {
+        if (typeIndex >= unitPrefabs.Count)
             return null;
+
+        foreach (UnitMovement unit in pooledUnits)
+        {
+            if (unit.unitID == unitPrefabs[typeIndex].unitID)
+            {
+                return unit;
+            }
         }
 
-        // Generate a random index within the range of the list
-        int randomIndex = Random.Range(0, unitPrefabs.Count);
+        if (activeUnits.Count + pooledUnits.Count < maxUnits)
+        {
+            UnitMovement newUnit = CreateUnitOfType(typeIndex);
+            newUnit.gameObject.SetActive(false);
+            pooledUnits.Add(newUnit);
+            return newUnit;
+        }
 
-        // Get the unit prefab at the random index
-        UnitMovement unitPrefab = unitPrefabs[randomIndex];
+        return null;
+    }
 
-        // Instantiate the selected unit prefab
-        return Instantiate(unitPrefab);
+    private UnitMovement CreateUnitOfType(int typeIndex)
+    {
+        if (typeIndex >= unitPrefabs.Count)
+            return null;
+
+        UnitMovement prefab = unitPrefabs[typeIndex];
+        UnitMovement newUnit = Instantiate(prefab);
+        newUnit.transform.SetParent(transform);
+
+        return newUnit;
     }
 
     public void AddUnitPrefab(UnitMovement newPrefab, int cardNumber)
     {
-        if (newPrefab != null)
+        if (newPrefab == null)
+            return;
+
+        newPrefab.cardID = cardNumber;
+
+        int index = unitPrefabs.FindIndex(prefab => prefab.cardID == cardNumber);
+        if (index != -1)
         {
-            // Set the unitID of the new prefab
-            newPrefab.unitID = cardNumber;
+            int oldUnitID = unitPrefabs[index].unitID;
+            unitPrefabs[index] = newPrefab;
+            UpdatePooledUnits(oldUnitID, cardNumber);
+        }
+        else
+        {
+            unitPrefabs.Insert(0, newPrefab);
+        }
 
-            // Search for an existing prefab with the same unitID
-            int index = unitPrefabs.FindIndex(prefab => prefab.unitID == cardNumber);
-            if (index != -1)
+        RefreshSpawnQueue();
+        OnSelect();
+    }
+
+    private void UpdatePooledUnits(int oldUnitID, int newCardID)
+    {
+        foreach (UnitMovement unit in pooledUnits)
+        {
+            if (unit.unitID == oldUnitID)
             {
-                unitPrefabs[index] = newPrefab; // Replace the existing prefab
+                unit.cardID = newCardID;
             }
-            else
-            {
-                unitPrefabs.Add(newPrefab); // Add the new prefab if it doesn't exist
-            }
-
-            // Reset the currentUnitIndex to ensure it points to a valid prefab
-            currentUnitIndex = 0;
-
-            // Reinitialize the object pool with the updated prefabs
-            OnSelect();
         }
     }
 }

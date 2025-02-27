@@ -12,12 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 362d761e29506a34bb0c7e33bdc8c72f, type: 3}
   m_Name: Giant
   m_EditorClassIdentifier: 
+  cardNumber: 0
   cardName: Giant
   cardImage: {fileID: 21300000, guid: 12ddaee9be1450e47bddd279bda6d7a9, type: 3}
   background: {fileID: 21300000, guid: 7888bdb0c9af4ab4097d3514e13d3896, type: 3}
   level: 1
   multiplier: 1
+  initialHealth: 0
   multiplier2: 1
+  initialDamage: 0
   multiplierType: Health
   multiplierType2: Attack
-  unitPrefab: {fileID: 0}
+  unitPrefab: {fileID: 3693515443737803385, guid: d2eecfcd9dc4fc540b899de59f5e2ed0, type: 3}

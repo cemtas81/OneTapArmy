@@ -61,7 +61,7 @@ public class CardView : MonoBehaviour
         //}
         // Notify the unit spawner that a card has been selected
         unitSpawner.AddUnitPrefab(unit,currentCard.cardNumber);
-
+        unitSpawner.OnSelect();
         // Move to the next card
         currentCardIndex++;
 

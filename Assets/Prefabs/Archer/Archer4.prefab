@@ -934,9 +934,9 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 0.1
+  m_StoppingDistance: 1
   m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
+  m_AutoBraking: 0
   m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 0
@@ -977,9 +977,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   canvas: {fileID: 5489352648986185163}
-  distanceMultiplier: 1
+  searchDistance: 4
   isArcher: 1
-  unitID: 1
+  unitID: 4
+  cardID: 1
 --- !u!114 &5373670914800556094
 MonoBehaviour:
   m_ObjectHideFlags: 0

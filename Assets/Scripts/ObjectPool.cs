@@ -15,7 +15,7 @@ public class ObjectPool<T> where T : Component
         Action<T> actionOnGet = null,
         Action<T> actionOnRelease = null,
         Action<T> actionOnDestroy = null,
-        int defaultCapacity = 20)
+        int defaultCapacity = 100)
     {
         this.createFunc = createFunc ?? throw new ArgumentNullException(nameof(createFunc));
         this.actionOnGet = actionOnGet;

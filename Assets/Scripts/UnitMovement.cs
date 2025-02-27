@@ -1,9 +1,10 @@
 
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
 
-public class UnitMovement : MonoBehaviour,IUpgrade
+public class UnitMovement : MonoBehaviour, IUpgrade
 {
   
     public float attackRange = 2f;
@@ -18,13 +19,14 @@ public class UnitMovement : MonoBehaviour,IUpgrade
     private readonly int _death = Animator.StringToHash("Death");
     public LayerMask layerMask;
     [SerializeField] private Canvas canvas;
-    [SerializeField] private float distanceMultiplier;
+    [SerializeField] private float searchDistance;
     private Camera mainCamera;
     private UnitSpawner spawner;
     private bool isDead;
     private float distanceToTarget;
     public bool isArcher;
     public int unitID; // Unique identifier for the unit
+    public int cardID; // Unique identifier for the card    
     private void Start()
     {
         targetPosition = transform.position;
@@ -32,23 +34,24 @@ public class UnitMovement : MonoBehaviour,IUpgrade
         anim = GetComponent<Animator>();
         mainCamera = Camera.main;
         spawner = FindFirstObjectByType<UnitSpawner>();
+
     }
     private void OnEnable()
     {
-       
         attackTarget = null;
         isDead = false;
         tapController = FindFirstObjectByType<TapController>();
         tapController?.move.AddListener(SetTarget);
-       
+
     }
+
     private void OnDisable()
     {
         tapController?.move.RemoveListener(SetTarget);
     }
     public void Upgrade(int level)
     {
-       attackDamage = (int)(attackDamage * (1 + level / 100f));
+        attackDamage = (int)(attackDamage * (1 + level / 100f));
     }
     public void Initialize()
     {
@@ -73,7 +76,7 @@ public class UnitMovement : MonoBehaviour,IUpgrade
     public void Death()
     {
         tapController?.move.RemoveListener(SetTarget);
-        isDead =true;
+        isDead = true;
         anim.SetBool(_attack, false);
         agent.isStopped = true;
         agent.updateRotation = false;
@@ -91,7 +94,7 @@ public class UnitMovement : MonoBehaviour,IUpgrade
         {
             Movement();
         }
-       
+
         canvas.transform.LookAt(mainCamera.transform);
         Animating(agent.velocity.magnitude);
     }
@@ -120,7 +123,7 @@ public class UnitMovement : MonoBehaviour,IUpgrade
     private void HandleAttackTarget()
     {
         distanceToTarget = Vector3.Distance(transform.position, attackTarget.position);
-        if (distanceToTarget <= attackRange*distanceMultiplier)
+        if (distanceToTarget <= attackRange)
         {
             AttackTarget();
         }
@@ -131,7 +134,8 @@ public class UnitMovement : MonoBehaviour,IUpgrade
     }
     private void ChaseTarget()
     {
-        agent.SetDestination(attackTarget.position);
+        anim.SetBool(_attack, false);
+        FindAttackTarget();
     }
     private void AttackTarget()
     {
@@ -157,7 +161,7 @@ public class UnitMovement : MonoBehaviour,IUpgrade
     }
 
     private void StopAttacking()
-    {    
+    {
         anim.SetBool(_attack, false);
         agent.isStopped = false;
         agent.updateRotation = true;
@@ -168,7 +172,7 @@ public class UnitMovement : MonoBehaviour,IUpgrade
     {
         if (attackTarget != null && attackTarget.gameObject.activeInHierarchy && attackTarget.TryGetComponent<IHealth>(out IHealth healthComponent))
         {
-            healthComponent.TakeDamage(attackDamage);      
+            healthComponent.TakeDamage(attackDamage);
         }
     }
 
@@ -176,7 +180,7 @@ public class UnitMovement : MonoBehaviour,IUpgrade
     {
         // Define a sphere to check for enemies within attack range
         Collider[] hitColliders = new Collider[maxUnit];
-        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, attackRange, hitColliders, layerMask);
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchDistance, hitColliders, layerMask);
 
         Transform nearestTarget = null;
         float shortestDistance = Mathf.Infinity;

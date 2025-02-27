@@ -15,7 +15,7 @@ MonoBehaviour:
   cardNumber: 2
   cardName: Swordsman
   cardImage: {fileID: 21300000, guid: 66a7d89bd5790374e8dd67ec3355e881, type: 3}
-  background: {fileID: 0}
+  background: {fileID: 21300000, guid: 5c04352150e835545bf5e3ccf80eed8c, type: 3}
   level: 5
   multiplier: 40
   initialHealth: 0
