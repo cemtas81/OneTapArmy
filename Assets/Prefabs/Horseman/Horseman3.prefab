@@ -1521,7 +1521,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackRange: 2
   attackDamage: 14
-  maxUnit: 20
+  maxUnit: 50
   attackTarget: {fileID: 0}
   layerMask:
     serializedVersion: 2
@@ -1529,8 +1529,10 @@ MonoBehaviour:
   canvas: {fileID: 1737277487580066873}
   searchDistance: 4
   isArcher: 0
+  isGiant: 0
   unitID: 6
-  cardID: 23
+  cardID: 4
+  isHorse: 1
 --- !u!65 &7041940664518164348
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -58,19 +58,19 @@ public class LightingManager : MonoBehaviour
         }
     }
 
-    //private void OnValidate()
-    //{
-    //    if (directionalLight != null)
-    //        return;
-    //    if (RenderSettings.sun != null)
-    //    {
-    //        directionalLight = RenderSettings.sun;
-    //    }
-    //    else
-    //    {
-    //        Light light=GameObject.FindFirstObjectByType<Light>();
-    //    }
+    private void OnValidate()
+    {
+        if (directionalLight != null)
+            return;
+        if (RenderSettings.sun != null)
+        {
+            directionalLight = RenderSettings.sun;
+        }
+        else
+        {
+            Light light = GameObject.FindFirstObjectByType<Light>();
+        }
 
-    //}
+    }
 
 }

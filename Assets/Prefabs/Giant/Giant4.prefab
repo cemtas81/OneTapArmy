@@ -857,7 +857,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackRange: 1.5
   attackDamage: 22
-  maxUnit: 20
+  maxUnit: 50
   attackTarget: {fileID: 0}
   layerMask:
     serializedVersion: 2
@@ -867,7 +867,7 @@ MonoBehaviour:
   isArcher: 0
   isGiant: 1
   unitID: 19
-  cardID: 0
+  cardID: 5
 --- !u!65 &5186733135252413598
 BoxCollider:
   m_ObjectHideFlags: 0

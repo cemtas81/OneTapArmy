@@ -23,4 +23,4 @@ MonoBehaviour:
   initialDamage: 0
   multiplierType: Health
   multiplierType2: Attack
-  unitPrefab: {fileID: 7448748290247042982, guid: 158c6a58cc0e1694da4e48337a51df6d, type: 3}
+  unitPrefab: {fileID: 7448748290247042982, guid: 64f40365aaed5544ea1f1dec790f9464, type: 3}

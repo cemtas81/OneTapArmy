@@ -73,13 +73,12 @@ public class CardView : MonoBehaviour
         else
         {
             Debug.Log("All cards have been used.");
-            // Optionally, disable the card selection UI or button here
         }
     }
 
     private void UpdateCardUI(Card card)
     {
-        // Update the UI elements with the card's data
+     
         cardImage.sprite = card.cardImage;
         background.sprite = card.background;
         cardName.text = card.cardName;

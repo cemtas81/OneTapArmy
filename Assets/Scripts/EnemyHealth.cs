@@ -15,6 +15,7 @@ public class EnemyHealth : MonoBehaviour, IHealth
     public Material deadMaterial;
     public Material aliveMaterial;
     public List<Material> materials;
+    public Image healthBarFill;
     private EnemyType enemyType;
     private void Start()
     {
@@ -42,8 +43,9 @@ public class EnemyHealth : MonoBehaviour, IHealth
                 break;
         }
         Renderers.ForEach(renderer => renderer.sharedMaterial = aliveMaterial);
+        healthBarFill.color = aliveMaterial.color;
     }
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, bool isEnemy)
     {
         healthBar.value = health;
         health -= damage;
@@ -51,7 +53,10 @@ public class EnemyHealth : MonoBehaviour, IHealth
         {
             isDead = true;
             enemyAI?.Death();
-            xpManager?.AddXP(xp); // Add XP when an enemy is destroyed
+            if (isEnemy)
+            {
+                xpManager?.AddXP(xp); // Add XP when an enemy is destroyed
+            }                
             Renderers.ForEach(renderer => renderer.sharedMaterial = deadMaterial);
         }
     }

@@ -1,4 +1,5 @@
 
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,13 +7,16 @@ public class XPManager : MonoBehaviour
 {
     public Slider xpBar; 
     public int maxXP = 100; 
-    private int currentXP = 0;
-    public GameObject newCardPanel; 
+    private int currentXP = 0,level;
+    public GameObject newCardPanel;
+    public TextMeshProUGUI xpLevel;
     void Start()
     {
         xpBar.maxValue = maxXP;
         xpBar.value = currentXP;
         newCardPanel.SetActive(true);
+        level = 1;
+        xpLevel.text = level.ToString();
     }
 
     public void AddXP(int amount)
@@ -30,8 +34,10 @@ public class XPManager : MonoBehaviour
 
     void ShowNewCards()
     {
-        // Logic to display new unit cards
+
         newCardPanel.SetActive(true);
+        level++;
+        xpLevel.text = level.ToString();    
     }
     
 }

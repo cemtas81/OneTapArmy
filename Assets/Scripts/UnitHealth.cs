@@ -20,7 +20,7 @@ public class UnitHealth : MonoBehaviour, IHealth, IUpgrade
 
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, bool isEnemy)
     {
         health -= damage;
         healthBar.value = health;

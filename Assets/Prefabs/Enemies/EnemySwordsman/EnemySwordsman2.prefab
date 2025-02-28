@@ -814,8 +814,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 0
-  maxHealth: 50
-  xp: 20
+  maxHealth: 55
+  xp: 10
   healthBar: {fileID: 7291953846962838024}
   Renderers:
   - {fileID: 3543660509534857741}
@@ -828,6 +828,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 007fc2c124cddb1479521826ccb5f777, type: 2}
   - {fileID: 2100000, guid: 68320c901d6f538499c9f0cc48cb68c3, type: 2}
   - {fileID: 2100000, guid: 253494a87bc7fdc469c396feb23827be, type: 2}
+  healthBarFill: {fileID: 2458221437986047825}
 --- !u!114 &4012626508789636039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -843,12 +844,13 @@ MonoBehaviour:
   waitTime: 2
   attackRange: 1.2
   moveSpeed: 25
-  damage: 10
+  damage: 11
   target: {fileID: 0}
   isArcher: 0
   canvas: {fileID: 5489352648986185163}
+  spawner: {fileID: 0}
   searchRange: 3
-  maxUnits: 20
+  maxUnits: 50
   enemyID: 3
   maxRange: 15
   searchLayers:
@@ -869,9 +871,9 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 0.1
+  m_StoppingDistance: 1
   m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
+  m_AutoBraking: 0
   m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 0

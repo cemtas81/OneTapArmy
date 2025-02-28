@@ -896,7 +896,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 5d9d8411caa24a84885e5214368ce027, type: 3}
       propertyPath: m_Name
-      value: Warrior
+      value: EnemyWarrior
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 5d9d8411caa24a84885e5214368ce027, type: 3}
       propertyPath: m_Layer
@@ -1055,7 +1055,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackRange: 1.2
   attackDamage: 10
-  maxUnit: 20
+  maxUnit: 50
   attackTarget: {fileID: 0}
   layerMask:
     serializedVersion: 2
@@ -1063,6 +1063,7 @@ MonoBehaviour:
   canvas: {fileID: 2133660117263159749}
   searchDistance: 4
   isArcher: 0
+  isGiant: 0
   unitID: 11
   cardID: 3
 --- !u!65 &199280046491673905

@@ -1,16 +1,17 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
-public class UnitSpawner : MonoBehaviour,IUpgrade
+public class UnitSpawner : MonoBehaviour, IUpgrade
 {
     public List<UnitMovement> unitPrefabs;
-    public Transform spawnPoint; 
-    public float spawnInterval = 5f; 
-    public int maxUnits = 50; 
-
+    public Transform spawnPoint;
+    public float spawnInterval = 5f;
+    public int maxUnits = 50;
+    public Slider healthSlider;
     private float timer;
     public int currentUnits = 0;
-
+    public GameObject losePanel;
     // To keep track of the current spawn sequence
     private Queue<int> spawnQueue = new Queue<int>();
     private int nextSpawnIndex = 0;
@@ -23,7 +24,11 @@ public class UnitSpawner : MonoBehaviour,IUpgrade
         PrePopulatePool();
         RefreshSpawnQueue();
     }
-
+    private void OnDestroy()
+    {
+        Time.timeScale = 0;
+        losePanel.SetActive(true);
+    }
     public void OnSelect()
     {
         ClearPooledUnits();
@@ -77,15 +82,20 @@ public class UnitSpawner : MonoBehaviour,IUpgrade
 
     private void Update()
     {
+        UpdateSpawnCooldownSlider();
+    }
+    private void UpdateSpawnCooldownSlider()
+    {
         timer += Time.deltaTime;
-
+        // Ensure the slider fills up to its maximum spawn interval
+        healthSlider.maxValue = spawnInterval;
+        healthSlider.value = Mathf.Clamp(timer, 0f, spawnInterval);
         if (timer >= spawnInterval && currentUnits < maxUnits)
         {
             SpawnNextUnit();
             timer = 0f;
         }
     }
-
     private void SpawnNextUnit()
     {
         if (unitPrefabs.Count == 0)
@@ -193,7 +203,29 @@ public class UnitSpawner : MonoBehaviour,IUpgrade
         }
         return false;
     }
+    public void SpawnUnitOfType(int unitType, Vector3 spawnPosition, GameObject door)
+    {
 
+        // Find the index of the unit type in the unitPrefabs list
+        int typeIndex = unitPrefabs.FindIndex(prefab => prefab.unitID == unitType);
+
+        // Get a pooled unit of the specified type
+        UnitMovement unit = GetPooledUnitOfType(typeIndex);
+        if (unit != null)
+        {
+            // Activate the unit at the specified position
+            unit.transform.SetPositionAndRotation(spawnPosition, spawnPoint.rotation);
+            unit.Initialize();
+
+            pooledUnits.Remove(unit);
+            activeUnits.Add(unit);
+            currentUnits++;
+        }
+        else
+        {
+            Destroy(door);
+        }
+    }
     private void ReturnUnitToPool(UnitMovement unit)
     {
         unit.ResetUnit();

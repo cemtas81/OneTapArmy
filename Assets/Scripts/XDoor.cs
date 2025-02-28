@@ -1,32 +1,42 @@
 
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class XDoor : MonoBehaviour
 {
     public GameObject doorPrefab;
-
+    
+    private float spawnTime;
+    private BoxCollider boxCollider;
     private void Start()
     {
+        boxCollider = GetComponent<BoxCollider>();  
         StartCoroutine(SpawnDoorCoroutine());
+        spawnTime = Random.Range(20f, 60f);
     }
 
     private IEnumerator SpawnDoorCoroutine()
     {
         while (true)
         {
-            float spawnTime = Random.Range(30f, 60f);
             yield return new WaitForSeconds(spawnTime);
 
-            Vector3 spawnPositionMin = new Vector3(-3.35f, 0.9409993f, -6.21f);
-            Vector3 spawnPositionMax = new Vector3(3.41f, 0.9409993f, -3.71f);
-            Vector3 spawnPosition = new Vector3(
-                Random.Range(spawnPositionMin.x, spawnPositionMax.x),
-                Random.Range(spawnPositionMin.y, spawnPositionMax.y),
-                Random.Range(spawnPositionMin.z, spawnPositionMax.z)
-            );
-
+            Vector3 spawnPosition = GetRandomPositionInBoxCollider(boxCollider);
             Instantiate(doorPrefab, spawnPosition, Quaternion.identity);
         }
+    }
+
+   
+    private Vector3 GetRandomPositionInBoxCollider(BoxCollider boxCollider)
+    {
+        Vector3 center = boxCollider.center + boxCollider.transform.position;
+        Vector3 size = boxCollider.size;
+
+        float x = Random.Range(center.x - size.x / 2, center.x + size.x / 2);
+        float y = -4.3f;
+        float z = Random.Range(center.z - size.z / 2, center.z + size.z / 2);
+
+        return new Vector3(x, y, z);
     }
 }

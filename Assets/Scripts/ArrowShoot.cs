@@ -3,19 +3,20 @@ using DG.Tweening;
 
 public class ArrowShoot : MonoBehaviour
 {
-    public Transform startPoint; // Point A
-    public Transform endPoint;   // Point B
-    public float height = 5f;   // Height of the arc
-    public float duration = 2f; // Duration of the tween
-    //private ArrowSpawner arrowSpawner;
+    public Transform startPoint; 
+    public Transform endPoint;   
+    public float height = 5f;  
+    public float duration = 2f; 
     private ArrowPoolManager arrowSpawner;
     public int damage;
     public bool isEnemyArrow;
+    public EnemyType shooterEnemyType; // The type of enemy that shot this arrow
 
     private void Start()
     {
         arrowSpawner = ArrowPoolManager.Instance;
     }
+
     public void Initialize()
     {
         gameObject.SetActive(true);
@@ -26,7 +27,7 @@ public class ArrowShoot : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private Vector3 previousPosition; // Track the arrow's position in the previous frame
+    private Vector3 previousPosition; 
 
     public void ShootArrow()
     {
@@ -72,45 +73,63 @@ public class ArrowShoot : MonoBehaviour
         // Update the previous position for the next frame
         previousPosition = transform.position;
     }
+
     void OnArrowLanded()
     {
-
         arrowSpawner.Release(this);
-
     }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (!isEnemyArrow)
         {
-
+            // Arrow shot by player
             DamageEnemy(collision.collider);
         }
         else
         {
-
-            DamagePlayer(collision.collider);
+            // Arrow shot by enemy
+            DamagePlayerOrEnemy(collision.collider);
         }
-
     }
+
     void DamageEnemy(Collider coll)
     {
         if (coll.gameObject.CompareTag("EnemyUnit"))
         {
             if (coll.gameObject.TryGetComponent<IHealth>(out var enemyHealth))
             {
-                enemyHealth.TakeDamage(damage);
+                enemyHealth.TakeDamage(damage,true);
                 ResetUnit();
             }
         }
     }
-    void DamagePlayer(Collider coll)
+
+    void DamagePlayerOrEnemy(Collider coll)
     {
+        // Check if the collider is a player unit
         if (coll.gameObject.CompareTag("PlayerUnit"))
         {
             if (coll.gameObject.TryGetComponent<IHealth>(out var playerHealth))
             {
-                playerHealth.TakeDamage(damage);
+                playerHealth.TakeDamage(damage, true);
                 ResetUnit();
+            }
+        }
+        // Check if the collider is an enemy unit of a different type
+        else if (coll.gameObject.CompareTag("EnemyUnit"))
+        {
+            if (coll.gameObject.TryGetComponent<EnemyAI>(out var enemyAI))
+            {
+                // Only damage if the enemy types are different
+                if (enemyAI.enemyType != shooterEnemyType)
+                {
+                    if (coll.gameObject.TryGetComponent<IHealth>(out var enemyHealth))
+                    {
+                        enemyHealth.TakeDamage(damage, false);
+                        ResetUnit();
+                    }
+                }
             }
         }
     }
