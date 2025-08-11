@@ -793,7 +793,8 @@ MonoBehaviour:
   isArcher: 0
   isGiant: 1
   unitID: 17
-  cardID: 5
+  cardID: 4
+  isHorse: 0
 --- !u!65 &5186733135252413598
 BoxCollider:
   m_ObjectHideFlags: 0

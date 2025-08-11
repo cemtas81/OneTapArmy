@@ -1470,8 +1470,8 @@ MonoBehaviour:
   searchDistance: 4
   isArcher: 0
   isGiant: 0
-  unitID: 6
-  cardID: 4
+  unitID: 21
+  cardID: 5
   isHorse: 1
 --- !u!65 &7041940664518164348
 BoxCollider:

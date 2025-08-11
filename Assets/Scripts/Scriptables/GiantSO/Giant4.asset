@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 362d761e29506a34bb0c7e33bdc8c72f, type: 3}
   m_Name: Giant4
   m_EditorClassIdentifier: 
-  cardNumber: 5
+  cardNumber: 4
   cardName: Giant
   cardImage: {fileID: 21300000, guid: 14a74bbd627c71a4da59303abc542a33, type: 3}
   background: {fileID: 21300000, guid: 7888bdb0c9af4ab4097d3514e13d3896, type: 3}

@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/level1NoDay&Night.unity
+    guid: 93a01479afcd981409e4f792ed58db72
+  - enabled: 0
     path: Assets/Scenes/Level1.unity
     guid: 4ec2e11799d69184b8eda95e987864ac
   - enabled: 1
